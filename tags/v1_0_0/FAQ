@@ -1,0 +1,36 @@
+# $Id: FAQ,v 1.1.1.1 2004-07-28 05:56:08 oops Exp $
+#
+
+Q:  rrd_graph() 함수의 출력을 이미지가 아닌 stdout 으로 출력하고 싶습니
+    다.  예를 들면, 아래와 같이 가능한가요?
+
+        rrd_graph("-", $opts, count($opts));
+            또는,
+        rrd_graph("php://stdout", $opts, count($opts));
+
+A:  현재 mod_rrd 에서는 불가능 합니다.  이는 rrdtool 의 link library 가
+    지원을 하지 않기 때문입니다.  위의 방법과 비슷하게는 아래와 같이 구
+    현이 가능합니다.
+
+    <?php
+      Header("Content-type: image/gif");                                         
+
+      $opts = ....;
+
+      $f = tempnam("/tmp","rrd");
+      $ret = rrd_graph($f, $opts, count($opts));
+      readfile($f);
+      unlink($f);
+    ?>
+
+Q:  librrd.so 대신 librrd.a 를 이용해서 rrdtool 의 라이브러리를 정적으로
+    링크 할 수 있나요?
+
+A:  가능합니다. 다만, 수동적인 방법이 필요합니다. 일단 rrdtool 이 설치가
+    되어 있지 않다면, make 까지만 하여 librrd.a 를 생성하도록 하십시오.
+    생성된 librrd.a 와 rrd.h 를 /tmp 에 위치 시켜둔 후에,
+
+    LDFLAGS=-L/tmp CPPFLAGS=-I/tmp ./configure
+
+    와 같이 configure 를 하시면 됩니다. 빌드를 마친 후에, ldd rrd.so 를
+    하여 librrd.so 가 나오지 않는다면 정적으로 빌드가 된 것입니다.
