@@ -1,0 +1,21 @@
+$Id: Changelog,v 1.1.1.1 2004-07-28 05:56:08 oops Exp $
+
+PHP rrdtool Extensoin Changelog
+
+* 1.0.0
+--------------------------------------------------------------------------------
+
+* Wed Jul 28 2004 JoungKyun Kim <http://www.oops.org>
+- rewrite base on php4-rrdtool-1.04
+- added korean document
+
+* Tue Jul 13 2004 JoungKyun Kim <http://www.oops.org>
+- added rrd_dump function
+- added rrd_restore function
+
+* Fri Jul  9 2004 JoungKyun Kim <http://www.oops.org>
+- added summary array value on rrd_fetch
+
+* Tue Jul  6 2004 JoungKyun Kim <http://www.oops.org>
+- redesign mod_rrdtool 1.03 from php4-rrdtool-1.03
+
