@@ -1,0 +1,185 @@
+$Id: USAGE,v 1.1.1.1 2004-07-28 05:56:08 oops Exp $
+
+--------------------------------------------------
+사용법:
+
+        mod_rrd 를 php 에 정적으로 빌드를 하였다면, 아무런 작업 없이
+바로 php 문서에서 rrd_* 함수들을 호출하여 사용할 수 있다.
+
+        하지만, shared extension 이나 phpize 를 이용하여 빌드를 하였
+다면, php.ini 에서 extension=rrd.so 와 같이 수작업으로 등록을 하거나
+또는 dl 함수를 이용하여 rrd extension 을 호출 하여야 한다. dl 함수를
+호출 하기 위해서는 아래와 같이 할 수 있다:
+
+	<? dl("rrd.so"); ?>
+
+모듈은 php.ini 의 extensions_dir 의 값에 따라 경로를 잘 지정해야 한다.
+
+
+
+
+API:
+
+--------------------------------------------------------------------
+string rrd_error()
+
+	아무런 전달값을 주지 않는다.
+
+        이 함수는 rrd_* 함수를 호출했을 때 호출 실패가 발생하면 에러
+        메세지를 반환한다. 에러가 발생하지 않았을 경우에는 빈 문자열
+        을 반환한다.
+
+
+
+--------------------------------------------------------------------
+int rrd_last(string filename)
+
+        rrd database 파일이름을 전달한다.
+
+        rrd_last 함수가 성공 한다면, rrd database 파일의 마지막 업데
+        이트 시간을 unixstamp 로 반환한다. php 의 date 함수를 이용하
+        여 보기 쉬운 시간으로 변형을 할 수 있다.
+
+        만약 rrd_last 가 실패했을 경우에는 0 을 반환한다. 또한,
+        rrd_error() 함수를 이용하여 에러 메세지를 구할 수 있다.
+ 
+
+
+--------------------------------------------------------------------
+int rrd_update(string filename, string options)
+
+        rrd_update 는 rrd database 파일 이름과, rrd database 에 입력
+        할 값 두개의 전달값을 가진다.
+
+        이는 RRDs perl 라이브러리에서 rrd_update 를 호출하는 것과 유
+        사하게 고안이 되어졌다.
+
+        예제: $result = rrd_update("/some.rrd", "N:123:9873:235");
+ 
+        rrd_update 가 성공을 하면 1 이 반환이 된다.
+
+        rrd_update 가 실패하면, 0 이 반환이 되며, rrd_error() 함수로
+        에러 메세지를 받을 수 있다.
+
+
+
+--------------------------------------------------------------------
+int rrd_create(string filename, array options, int num_of_array_option)
+
+        rrd_create 는 rrd database 파일 이름, 옵션 배열 (정확하게 말
+        하자면, RRDs 펄 라이브러리나, rrdtool 명령어에서 사용이 되는
+        옵션을 의미한다.) 그리고 마지막으로 배열의 수, 3 개의 전달값
+        을 가진다. 배열의 수는 간단하게 count ($opt_array) 로 지정할
+        수 있다.
+
+        rrd_dupate 가 성공하면 1을 반환하고, 실패하면 0을 반환한다.
+
+        실패 시에는, rrd_error() 함수로 메세지를 구할 수 있다.
+
+
+
+--------------------------------------------------------------------
+mixed rrd_graph(string filename, array options, int num_of_elements) 
+
+        rrd_graph 는 그래프 파일 이름, 옵션 배열, 옵션 배열의 수, 3
+        개의 전달값을 가진다. (이는 RRDs 펄 라이브러리나 rrdtool 의
+        명령어와 아주 유사하다.)
+
+        rrd_graph 가 성공하면, 지정한 파일이름으로 이미지를 생성하며,
+        배열을 반환한다. 배열은 아래와 같다.
+
+        $array[xsize]  생성된 이미지의 넓이 (pixel)
+        $array[ysize]  생성된 이미지의 높이 (pixel)
+        $array[calcpr] PRINT 문의 결과를 포함하고 있는 또다른 배열
+
+        rrd_graph 가 실패하면 0 을 반환한다.
+
+        rrd_graph 성공 여부는 반환값이 0 이냐 아니냐로 체크하는 것을
+        권장하지 않는다. rrd_graph 의 성공 여부는 is_array 함수를 이
+        용하여, 성공시에는 true 를 실패시에는 false 로 구분을 하도록
+        한다.
+
+
+--------------------------------------------------------------------
+mixed rrd_fetch(string filename, array options, int num_of_elements) 
+
+        rrd_fetch 는  rrd database 파일이름, 옵션 배열, 옵션 배열 수
+        와 같이 3 개의 전달값을 가진다.  옵션은 RRDs 펄 라이브러리나
+        rrdtool 명령어로 fetch 를 할 때와 비슷하다. 옵션 배열의 수는
+        count() 함수로 쉽게 전달할 수 있다.
+
+        rrd_fetch 가 성공은 하면, 6 개의 배열을 반환한다.  각 배열의
+        정보는 아래와 같다.
+
+        $array[start]   반환된 데이터의 시작 시간. unixstamp 로 반환
+        $array[end]     반환된 데이터의 마지막 시간. unixstamp 로 반환
+        $array[step]    반환된 데이터의 인터벌 간격. 초 단위.
+        $array[ds_cnt]  RRD 파일로 부터 반환된 DS 의 수
+        $array[ds_namv] RRD 파일로 부터 반환된 DS 이름을 배열로 저장
+        $array[data]    rrd 파일로 부터 fetch 된 모든 값의 배열
+        $array[sum]     rrdtool 명령어로 fetch 를 실행했을 때와 동일
+                        한 포맷으로 값을 구함. 틀린 점은, rrdtool 명
+                        령어로 실행했을 때의 결과에서 한 라인을 하나
+                        의 배열로 가진 다는 점이다.
+
+
+        print_r ($array[data])
+
+            [data] => Array
+                (
+                    [0] => 3370282.39322067
+                    [1] => 45092732.6019508
+                    [2] => 1624674.75199076
+                    [3] => 48476202.6105962
+                    [4] => 1230449.71898972
+                    [5] => 37959579.9796556
+                    ...
+                )
+
+        print_r ($array[sum])
+            [sum] => Array
+                (
+                    [0] => 1086998400:  3.3702823932e+06 4.5092732602e+07
+                    [1] => 1087084800:  1.6246747520e+06 4.8476202611e+07
+                    [2] => 1087171200:  1.2304497190e+06 3.7959579980e+07
+                    ...
+                )
+
+        이 함수는 rrd_fetch C API 또는 RRDs 펄 라이브러리와 아주 유
+        사하게 작동한다.
+
+
+        실패시에는 0 을 반환한다.
+
+        rrd_fetch 성공 여부는 반환값이 0 이냐 아니냐로 체크하는 것을
+        권장하지 않는다. rrd_fetch 의 성공 여부는 is_array 함수를 이
+        용하여, 성공시에는 true 를 실패시에는 false 로 구분을 하도록
+        한다.
+
+
+--------------------------------------------------------------------
+void rrd_dump(string filename)
+
+        rrd_dump 는 주어진 rrd database 파일의 정보를 xml형식으로 출
+        력한다.
+
+        실패시에는 false 를 반환한다.
+
+
+--------------------------------------------------------------------
+void rrd_restore(string xml_filename, string restore_database, int opt)
+
+        rrdtool restore 의 옵션 순서와 동일하다. xml_fliename 은
+        rrd_dump 의 결과를 파일에 저장한 형태이며,  restore_database
+        는 복구된 database 파일 이름이다. restore_database 에 실제파
+        일이 존재하면 에러가 발생한다. opt 를 1 로 지정을 하면
+
+        rrdtool restore filename.xml filename.rrd --range-check
+
+        와 동일하게 작동한다.
+
+        rrd_restore 는 성공을 하면 true 를 실패를 하면 false 를 반환
+        한다.
+
+
+--------------------------------------------------------------------
