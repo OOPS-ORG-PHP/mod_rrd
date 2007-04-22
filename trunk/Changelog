@@ -1,6 +1,13 @@
-$Id: Changelog,v 1.1.1.1 2004-07-28 05:56:08 oops Exp $
+$Id: Changelog,v 1.2 2007-04-22 09:24:17 oops Exp $
 
 PHP rrdtool Extensoin Changelog
+
+* 1.0.1
+--------------------------------------------------------------------------------
+
+* Sun Apr 22 2007 JoungKyun.Kim <http://oops.org>
+- fixed wrong library name
+
 
 * 1.0.0
 --------------------------------------------------------------------------------
