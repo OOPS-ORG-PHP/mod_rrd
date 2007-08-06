@@ -1,6 +1,13 @@
-$Id: Changelog,v 1.2 2007-04-22 09:24:17 oops Exp $
+$Id: Changelog,v 1.3 2007-08-06 08:04:20 oops Exp $
 
 PHP rrdtool Extensoin Changelog
+
+* 1.2.0
+--------------------------------------------------------------------------------
+
+* Mon Aug  6 2007 JoungKyun.Kim <http://oops.org>
+- support rrdtool 1.2 (use --with-rrd12 option when configureing)
+- add rrdtool 1.2 library
 
 * 1.0.1
 --------------------------------------------------------------------------------
@@ -12,17 +19,17 @@ PHP rrdtool Extensoin Changelog
 * 1.0.0
 --------------------------------------------------------------------------------
 
-* Wed Jul 28 2004 JoungKyun Kim <http://www.oops.org>
+* Wed Jul 28 2004 JoungKyun Kim <http://oops.org>
 - rewrite base on php4-rrdtool-1.04
 - added korean document
 
-* Tue Jul 13 2004 JoungKyun Kim <http://www.oops.org>
+* Tue Jul 13 2004 JoungKyun Kim <http://oops.org>
 - added rrd_dump function
 - added rrd_restore function
 
-* Fri Jul  9 2004 JoungKyun Kim <http://www.oops.org>
+* Fri Jul  9 2004 JoungKyun Kim <http://oops.org>
 - added summary array value on rrd_fetch
 
-* Tue Jul  6 2004 JoungKyun Kim <http://www.oops.org>
+* Tue Jul  6 2004 JoungKyun Kim <http://oops.org>
 - redesign mod_rrdtool 1.03 from php4-rrdtool-1.03
 

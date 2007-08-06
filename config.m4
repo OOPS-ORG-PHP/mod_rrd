@@ -1,7 +1,7 @@
-dnl $Id: config.m4,v 1.2 2007-04-22 09:24:17 oops Exp $
+dnl $Id: config.m4,v 1.3 2007-08-06 08:04:20 oops Exp $
 
 PHP_ARG_WITH(rrd, for RRDTool support,
-[  --with-rrd[=DIR]      Include RRDTool support.  DIR is the rrdtool
+[  --with-rrd[=DIR]          Include RRDTool support.  DIR is the rrdtool
                           install directory.])
 
 if test "$PHP_RRD" != "no"; then
@@ -10,6 +10,16 @@ if test "$PHP_RRD" != "no"; then
   RRD_PARAMETER=$CFLAGS
   PHP_SUBST(CPPFLAGS)
   PHP_SUBST(LDFLAGS)
+
+  AC_MSG_CHECKING(requested rrdtool version)
+  AC_ARG_WITH(rrd12, [  --with-rrd12            Link with rrdtool 1.2 [default 1.0] ], [
+    if test "$with_rrd12" != "no" ; then
+      AC_MSG_RESULT(rrdtool 1.2)
+      AC_DEFINE(SUPPORT_RRD12, 1, [ ])
+      rrd_lib_postfix="12"
+    else
+      AC_MSG_RESULT(rrdtool 1.0)
+    fi ], [ AC_MSG_RESULT(rrdtool 1.0) ])
 
   SEARCH_PATH="/usr /usr/local /opt/rrdtool /usr/local/rrdtool $PHP_RRD"
 
@@ -64,7 +74,7 @@ if test "$PHP_RRD" != "no"; then
   AC_FUNC_STRFTIME
   AC_FUNC_VPRINTF
 
-  extra_src="rrdlib/rrd_dump.c rrdlib/rrd_restore.c"
+  extra_src="rrdlib${rrd_lib_postfix}/rrd_dump.c rrdlib${rrd_lib_postfix}/rrd_restore.c"
 
   PHP_EXPAND_PATH($RRD_HEADER_DIR, RRD_HEADER_DIR)
   PHP_ADD_INCLUDE($RRD_HEADER_DIR)

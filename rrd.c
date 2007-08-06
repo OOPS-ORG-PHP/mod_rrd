@@ -39,7 +39,7 @@
  *
  * See README, INSTALL, and USAGE files for more details.
  *
- * $Id: rrd.c,v 1.1.1.1 2004-07-28 05:56:08 oops Exp $
+ * $Id: rrd.c,v 1.2 2007-08-06 08:04:20 oops Exp $
  *
  */
 
@@ -297,6 +297,9 @@ PHP_FUNCTION(rrd_graph) {
 	int			   i, xsize, ysize, argc;
 	char		** argv;
 	char		** calcpr;
+#ifdef SUPPORT_RRD12
+	double		   ymin, ymax;
+#endif
     
 
 	if ( rrd_test_error() )
@@ -339,10 +342,17 @@ PHP_FUNCTION(rrd_graph) {
 		}
    
 		optind = 0; opterr = 0; 
-		if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize) != -1 ) {
+#ifdef SUPPORT_RRD12
+		if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize, NULL, &ymin, &ymax) != -1 )
+#else
+		if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize) != -1 )
+#endif
+		{
 			array_init(return_value);
 			add_assoc_long(return_value, "xsize", xsize);
 			add_assoc_long(return_value, "ysize", ysize);
+			add_assoc_long(return_value, "ymin", ymin);
+			add_assoc_long(return_value, "ymax", ymax);
 
 			MAKE_STD_ZVAL(p_calcpr);
 			array_init(p_calcpr);
@@ -507,7 +517,7 @@ PHP_FUNCTION(rrd_dump) {
 	zval	**  file;
 	char	** argv;
 	char	 * f;
-	int		   argc;
+	int		   argc, i;
 
 	if ( rrd_test_error() )
 		rrd_clear_error();
@@ -528,7 +538,7 @@ PHP_FUNCTION(rrd_dump) {
 
 	argv = (char **) emalloc (3 * sizeof (char *));
 
-	argv[0] = "dummy";
+	argv[0] = estrdup ("dummy");
 	argv[1] = estrdup ("dump");
 	argv[2] = estrdup (f);
 
@@ -541,8 +551,8 @@ PHP_FUNCTION(rrd_dump) {
 		RETVAL_FALSE;
 	}
 
-	efree(argv[1]);
-	efree(argv[2]);
+	for ( i=0; i<3; i++ )
+		efree (argv[i]);
 	efree(argv);
 }
 /* }}} */
