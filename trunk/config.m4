@@ -1,25 +1,15 @@
-dnl $Id: config.m4,v 1.3 2007-08-06 08:04:20 oops Exp $
+dnl $Id: config.m4,v 1.4 2007-08-06 11:53:42 oops Exp $
 
 PHP_ARG_WITH(rrd, for RRDTool support,
 [  --with-rrd[=DIR]          Include RRDTool support.  DIR is the rrdtool
                           install directory.])
 
 if test "$PHP_RRD" != "no"; then
-  AC_DEFINE(HAVE_RRD,1,[ ])
+  AC_DEFINE(HAVE_RRD,1,[support rrd extension])
 
   RRD_PARAMETER=$CFLAGS
   PHP_SUBST(CPPFLAGS)
   PHP_SUBST(LDFLAGS)
-
-  AC_MSG_CHECKING(requested rrdtool version)
-  AC_ARG_WITH(rrd12, [  --with-rrd12            Link with rrdtool 1.2 [default 1.0] ], [
-    if test "$with_rrd12" != "no" ; then
-      AC_MSG_RESULT(rrdtool 1.2)
-      AC_DEFINE(SUPPORT_RRD12, 1, [ ])
-      rrd_lib_postfix="12"
-    else
-      AC_MSG_RESULT(rrdtool 1.0)
-    fi ], [ AC_MSG_RESULT(rrdtool 1.0) ])
 
   SEARCH_PATH="/usr /usr/local /opt/rrdtool /usr/local/rrdtool $PHP_RRD"
 
@@ -73,6 +63,18 @@ if test "$PHP_RRD" != "no"; then
   dnl Checks for library functions.
   AC_FUNC_STRFTIME
   AC_FUNC_VPRINTF
+
+  #AC_CHECK_LIB(rrd, rrd_test_error,, [AC_MSG_ERROR([Can't not found rrd library (-lrrd)])])
+  AC_CHECK_LIB(rrd, rrd_first, [
+               AC_DEFINE([SUPPORT_RRD12],[1],[supprot rrdtool 1.2])
+               AC_MSG_CHECKING(rrdtool version)
+               AC_MSG_RESULT(1.2.x)
+               rrd_lib_postfix="12"
+  ], [
+               AC_MSG_CHECKING(rrdtool version)
+               AC_MSG_RESULT(1.0.x)
+               rrd_lib_postfix=""
+  ])
 
   extra_src="rrdlib${rrd_lib_postfix}/rrd_dump.c rrdlib${rrd_lib_postfix}/rrd_restore.c"
 
