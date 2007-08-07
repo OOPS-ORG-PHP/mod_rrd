@@ -5,9 +5,9 @@
  *
  *
  * Joe Miller, <joeym@joeym.net> 2/12/2000 & 7/18/2000 php4-rrdtool 1.04
- * JoungKyun Kim, <http://devel.oops.org> forking mod_rrd
+ * JoungKyun.Kim, <http://devel.oops.org> forking mod_rrd
  *
- * Copyright (c) 2004, JoungKyun Kim
+ * Copyright (c) 2007, JoungKyun.Kim
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
  *
  * See README, INSTALL, and USAGE files for more details.
  *
- * $Id: rrd.c,v 1.2 2007-08-06 08:04:20 oops Exp $
+ * $Id: rrd.c,v 1.3 2007-08-07 04:50:29 oops Exp $
  *
  */
 
@@ -75,6 +75,9 @@ function_entry rrd_functions[] = {
 	PHP_FE(rrd_create, NULL)
 	PHP_FE(rrd_dump, NULL)
 	PHP_FE(rrd_restore, NULL)
+#ifdef SUPPORT_RRD12
+	PHP_FE(rrd_first, NULL)
+#endif
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -628,6 +631,49 @@ PHP_FUNCTION(rrd_restore) {
 	efree (argv);
 }
 /* }}} */
+
+#ifdef SUPPORT_RRD12
+/* {{{ proto int rrd_first(string file, string index)
+ * Return the date of the first data sample in an RRA within an RRD
+ */
+PHP_FUNCTION(rrd_first) {
+	pval			* file, *index;
+	unsigned long	  retval;
+	int				  f_argc = 0, i;
+
+	if ( rrd_test_error() )
+		rrd_clear_error();
+    
+	char **argv = (char **) emalloc(4 * sizeof(char *));
+
+	argv[0] = estrdup ("dummy");
+	argv[1] = estrdup ("first");
+    
+	if (zend_get_parameters(ht, 1, &file) == SUCCESS) {
+		convert_to_string(file);
+		argv[2] = estrdup(file->value.str.val);
+		f_argc = 2;
+	} else if (zend_get_parameters(ht, 2, &file, &index) == SUCCESS) {
+		convert_to_string(file);
+		convert_to_string(index);
+
+		argv[2] = estrdup(file->value.str.val);
+		argv[3] = estrdup(index->value.str.val);
+		f_argc = 3;
+	} else {
+		WRONG_PARAM_COUNT;
+	}
+
+	optind = 0; opterr = 0;
+	retval = rrd_first (f_argc, &argv[1]);
+
+	for ( i=0; i<=f_argc; i++ )
+		efree (argv[i]);
+	efree(argv);
+	RETVAL_LONG(retval);
+}
+/* }}} */
+#endif /* SUPPORT_RRD12 */
 
 /* {{{ Every user-visible function in PHP should document itself in the source
  * proto string confirm_rrdtool_compiled(string arg)
