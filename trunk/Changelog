@@ -1,4 +1,4 @@
-$Id: Changelog,v 1.3 2007-08-06 08:04:20 oops Exp $
+$Id: Changelog,v 1.4 2007-08-07 04:27:40 oops Exp $
 
 PHP rrdtool Extensoin Changelog
 
@@ -6,7 +6,6 @@ PHP rrdtool Extensoin Changelog
 --------------------------------------------------------------------------------
 
 * Mon Aug  6 2007 JoungKyun.Kim <http://oops.org>
-- support rrdtool 1.2 (use --with-rrd12 option when configureing)
 - add rrdtool 1.2 library
 
 * 1.0.1
