@@ -36,7 +36,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: php_rrd.h,v 1.2 2007-08-06 08:04:20 oops Exp $
+ * $Id: php_rrd.h,v 1.3 2007-08-07 06:31:21 oops Exp $
  *
  */
 
@@ -72,6 +72,9 @@ PHP_FUNCTION(rrd_graph);
 PHP_FUNCTION(rrd_fetch);
 PHP_FUNCTION(rrd_dump);
 PHP_FUNCTION(rrd_restore);
+#ifdef SUPPORT_RRD12
+PHP_FUNCTION(rrd_first);
+#endif
 
 #ifdef ZTS
 #define RRD_G(v) TSRMG(rrd_globals_id, zend_rrd_globals *, v)
