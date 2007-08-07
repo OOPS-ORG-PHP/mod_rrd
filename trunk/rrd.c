@@ -39,7 +39,7 @@
  *
  * See README, INSTALL, and USAGE files for more details.
  *
- * $Id: rrd.c,v 1.3 2007-08-07 04:50:29 oops Exp $
+ * $Id: rrd.c,v 1.4 2007-08-07 06:34:09 oops Exp $
  *
  */
 
@@ -190,11 +190,12 @@ PHP_FUNCTION(rrd_update) {
 PHP_FUNCTION(rrd_last) {
 	pval			* file;
 	unsigned long	  retval;
-
-	char **argv = (char **) emalloc(3 * sizeof(char *));
+	char			** argv;
     
 	if ( rrd_test_error() )
 		rrd_clear_error();
+
+	argv = (char **) emalloc(3 * sizeof(char *));
     
 	if (zend_get_parameters(ht, 1, &file) == SUCCESS) {
 		convert_to_string(file);
@@ -210,6 +211,7 @@ PHP_FUNCTION(rrd_last) {
 		efree(argv);
 		RETVAL_LONG(retval);
 	} else {
+		efree (argv);
 		WRONG_PARAM_COUNT;
 	}
 	return;
@@ -640,11 +642,12 @@ PHP_FUNCTION(rrd_first) {
 	pval			* file, *index;
 	unsigned long	  retval;
 	int				  f_argc = 0, i;
+	char			** argv;
 
 	if ( rrd_test_error() )
 		rrd_clear_error();
     
-	char **argv = (char **) emalloc(4 * sizeof(char *));
+	argv = (char **) emalloc(4 * sizeof(char *));
 
 	argv[0] = estrdup ("dummy");
 	argv[1] = estrdup ("first");
@@ -661,6 +664,9 @@ PHP_FUNCTION(rrd_first) {
 		argv[3] = estrdup(index->value.str.val);
 		f_argc = 3;
 	} else {
+		for ( i=0; i<2; i++ )
+			efree (argv[i]);
+		efree (argv);
 		WRONG_PARAM_COUNT;
 	}
 
