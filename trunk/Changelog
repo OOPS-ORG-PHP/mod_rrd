@@ -1,12 +1,16 @@
-$Id: Changelog,v 1.4 2007-08-07 04:27:40 oops Exp $
+$Id: Changelog,v 1.5 2007-08-07 04:50:29 oops Exp $
 
 PHP rrdtool Extensoin Changelog
 
 * 1.2.0
 --------------------------------------------------------------------------------
 
+* Tue Aug  7 2007 JoungKyun.Kim <http://oops.org>
+- add rrd_first if link with rrdtool 1.2
+
 * Mon Aug  6 2007 JoungKyun.Kim <http://oops.org>
 - add rrdtool 1.2 library
+
 
 * 1.0.1
 --------------------------------------------------------------------------------
