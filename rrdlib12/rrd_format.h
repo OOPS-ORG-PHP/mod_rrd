@@ -17,7 +17,7 @@
 #define puts php_printf
 #define fputs(s, f) php_printf (s)
 #define free efree
-#define malloc emallocf
+#define malloc emalloc
 
 #define RRD_READONLY    0
 #define RRD_READWRITE   1
