@@ -1,4 +1,4 @@
-dnl $Id: config.m4,v 1.4 2007-08-06 11:53:42 oops Exp $
+dnl $Id: config.m4,v 1.5 2007-09-28 10:11:36 oops Exp $
 
 PHP_ARG_WITH(rrd, for RRDTool support,
 [  --with-rrd[=DIR]          Include RRDTool support.  DIR is the rrdtool
@@ -41,9 +41,8 @@ if test "$PHP_RRD" != "no"; then
     fi
   done
   
+  LIBSEARCH=`echo $LDFLAGS | sed 's/-L//g'`
   if test -z "$RRD_LIB_DIR"; then
-    LIBSEARCH=`echo $LDFLAGS | sed 's/-L//g'`
-
     for i in $LIBSEARCH; do
       if test -f $i/librrd.$SHLIB_SUFFIX_NAME -o -f $i/librrd.a; then
         RRD_LIB_DIR=$i
@@ -70,6 +69,21 @@ if test "$PHP_RRD" != "no"; then
                AC_MSG_CHECKING(rrdtool version)
                AC_MSG_RESULT(1.2.x)
                rrd_lib_postfix="12"
+               for i in $LIBSEARCH
+               do
+                 if test -f $i/libart_lgpl_2.$SHLIB_SUFFIX_NAME -o -f $i/libart_lgpl_2.a; then
+                   ART_LIB_DIR=$i
+                   break;
+                 fi
+
+                 if test -z "$ART_LIB_DIR"; then
+                   AC_MSG_ERROR([libart_lgpl_2.(a|so) not found.])
+                 fi
+               done
+               AC_CHECK_LIB(art_lgpl_2, art_svp_free,, [
+                            AC_MSG_ERROR([Can't not found arg_lgpl_2 library (-lart_lgpl_2)])
+               ])
+               PHP_ADD_LIBRARY_WITH_PATH(art_lgpl_2, $ART_LIB_DIR, RRD_SHARED_LIBADD)
   ], [
                AC_MSG_CHECKING(rrdtool version)
                AC_MSG_RESULT(1.0.x)
