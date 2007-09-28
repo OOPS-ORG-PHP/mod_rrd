@@ -1,4 +1,4 @@
-$Id: Changelog,v 1.7 2007-09-28 10:11:36 oops Exp $
+$Id: Changelog,v 1.8 2007-09-28 10:13:04 oops Exp $
 
 PHP rrdtool Extensoin Changelog
 
@@ -8,6 +8,7 @@ PHP rrdtool Extensoin Changelog
 * Fri Sep 28 2007 JoungKyun.Kim <http://oops.org>
 - fixed undefine symbol emallocf
 - check libart_lgpl_2 library when linked rrdtool 1.2 on config.m4
+- fixed efree symbol error
 
 
 * 1.2.0
