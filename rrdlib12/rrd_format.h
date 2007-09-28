@@ -13,6 +13,10 @@
 #define RRD_VERSION   "0003"
 #define FLOAT_COOKIE  8.642135E130
 
+#ifndef PHP_H
+#include "php.h"
+#endif
+
 #define printf php_printf
 #define puts php_printf
 #define fputs(s, f) php_printf (s)
