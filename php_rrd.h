@@ -36,7 +36,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: php_rrd.h,v 1.3 2007-08-07 06:31:21 oops Exp $
+ * $Id: php_rrd.h,v 1.4 2007-09-28 09:51:36 oops Exp $
  *
  */
 
@@ -83,8 +83,8 @@ PHP_FUNCTION(rrd_first);
 
 #endif
 
-#define RRD_BUILDNO "200708061657"
-#define RRD_BUILDVER "1.2.0"
+#define RRD_BUILDNO "200709271851"
+#define RRD_BUILDVER "1.2.1"
 
 #define phpext_rrd_ptr rrd_module_ptr
 
