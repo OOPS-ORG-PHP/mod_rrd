@@ -1,4 +1,4 @@
-dnl $Id: config.m4,v 1.5 2007-09-28 10:11:36 oops Exp $
+dnl $Id: config.m4,v 1.6 2008-07-15 11:44:27 oops Exp $
 
 PHP_ARG_WITH(rrd, for RRDTool support,
 [  --with-rrd[=DIR]          Include RRDTool support.  DIR is the rrdtool
@@ -35,8 +35,8 @@ if test "$PHP_RRD" != "no"; then
   fi
 
   for i in $SEARCH_PATH; do
-    if test -f $i/lib/librrd.$SHLIB_SUFFIX_NAME -o -f $i/lib/librrd.a ; then
-      RRD_LIB_DIR=$i/lib
+    if test -f $i/$PHP_LIBDIR/librrd.$SHLIB_SUFFIX_NAME -o -f $i/$PHP_LIBDIR/librrd.a ; then
+      RRD_LIB_DIR=$i/$PHP_LIBDIR
       break
     fi
   done
