@@ -1,10 +1,13 @@
 /*****************************************************************************
- * RRDtool 1.2.23  Copyright by Tobi Oetiker, 1997-2007
+ * RRDtool 1.2.30  Copyright by Tobi Oetiker, 1997-2009
  *****************************************************************************
  * rrd_dump  Display a RRD
  *****************************************************************************
- * $Id: rrd_dump.c,v 1.1 2007-08-06 08:04:20 oops Exp $
+ * $Id: rrd_dump.c,v 1.2 2009-03-12 07:57:31 oops Exp $
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2007/08/06 08:04:20  oops
+ * support rrdtool 1.2
+ *
  * Revision 1.7  2004/05/25 20:53:21  oetiker
  * prevent small leak when resources are exhausted -- Mike Slifcak
  *
