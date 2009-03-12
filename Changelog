@@ -1,9 +1,12 @@
-$Id: Changelog,v 1.9 2008-07-15 11:44:27 oops Exp $
+$Id: Changelog,v 1.10 2009-03-12 07:49:31 oops Exp $
 
 PHP rrdtool Extensoin Changelog
 
 * 1.2.2
 --------------------------------------------------------------------------------
+
+* Thu Mar 12 2009 JoungKyun.Kim <http://oops.org>j
+- fixed lib_arg_lgpl link search
 
 * Tue Jul 15 2008 JoungKyun.Kim <http://oops.org>
 - support 64bit library check
