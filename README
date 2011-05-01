@@ -1,4 +1,4 @@
-$Id: README,v 1.1.1.1 2004-07-28 05:56:08 oops Exp $
+$Id$
 
 mod_rrd 는 Joe Miller, <joeym@joeym.net> 에 의해 작성된 php4-rrdtool
 에서 파생된 php extension 이다. 현재 mod_rrd 에는 php4-rrdtool 에 있

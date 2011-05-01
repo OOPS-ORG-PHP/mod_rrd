@@ -1,4 +1,4 @@
-dnl $Id: config.m4,v 1.8 2009-03-12 07:49:31 oops Exp $
+dnl $Id$
 
 PHP_ARG_WITH(rrd, for RRDTool support,
 [  --with-rrd[=DIR]          Include RRDTool support.  DIR is the rrdtool

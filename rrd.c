@@ -39,7 +39,7 @@
  *
  * See README, INSTALL, and USAGE files for more details.
  *
- * $Id: rrd.c,v 1.4 2007-08-07 06:34:09 oops Exp $
+ * $Id$
  *
  */
 
