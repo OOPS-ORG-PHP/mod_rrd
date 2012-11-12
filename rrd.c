@@ -121,16 +121,14 @@ PHP_MINFO_FUNCTION(rrd)
  * Get the error message set by the last rrd tool function call
  */
 PHP_FUNCTION(rrd_error) {
-	char	* msg;
+	char * msg;
 
-	if ( rrd_test_error() ) {
-		msg = rrd_get_error();        
+	if ( rrd_test_error () ) {
+		msg = rrd_get_error ();        
 
-		RETVAL_STRING(msg, 1);
-		rrd_clear_error();
+		RETVAL_STRING (msg, 1);
+		rrd_clear_error ();
 	}
-	else
-		return;
 }
 /* }}} */
 
@@ -138,10 +136,8 @@ PHP_FUNCTION(rrd_error) {
  * Clear the error set by the last rrd tool function call
  */
 PHP_FUNCTION(rrd_clear_error) {
-	if ( rrd_test_error() )
-		rrd_clear_error();
-
-	return;
+	if ( rrd_test_error () )
+		rrd_clear_error ();
 }
 /* }}} */
 
@@ -149,38 +145,43 @@ PHP_FUNCTION(rrd_clear_error) {
  * Update an RRD file with values specified
  */
 PHP_FUNCTION(rrd_update) {
-	pval	 * file;
-	pval	 * opt;
-	char	** argv;
+	char  * file = NULL,
+		  * opt  = NULL;
+	int     flen = 0,
+		    olen = 0;
 
-	if ( rrd_test_error() )
-		rrd_clear_error();
+	char ** argv;
 
-	if ( ZEND_NUM_ARGS() == 2 && zend_get_parameters(ht, 2, &file, &opt) == SUCCESS ) {
-		convert_to_string(file);
-		convert_to_string(opt);
+	if ( rrd_test_error () )
+		rrd_clear_error ();
 
-		argv = (char **) emalloc(4 * sizeof(char *));
+	if ( rrd_parameters ("ss", &file, &flen, &opt, &olen) == FAILURE )
+		return;
 
-		argv[0] = "dummy";
-		argv[1] = estrdup("update");
-		argv[2] = estrdup(file->value.str.val);
-		argv[3] = estrdup(opt->value.str.val);
-
-		optind = 0; opterr = 0;
-		if ( rrd_update(3, &argv[1]) != -1 ) {
-			RETVAL_TRUE;
-		} else {
-			RETVAL_FALSE;
-		}
-		efree(argv[1]);
-		efree(argv[2]);
-		efree(argv[3]);
-		efree(argv);
-	} else {
-		WRONG_PARAM_COUNT;
+	if ( flen == 0 ) {
+		php_error (E_WARNING, "1st argument is empty or missing\n");
+		RETURN_FALSE;
 	}
-	return;
+
+	argv = (char **) emalloc (4 * sizeof (char *));
+
+	argv[0] = "dummy";
+	argv[1] = estrdup ("update");
+	argv[2] = estrdup (file);
+	argv[3] = olen ? estrdup (opt) : NULL;
+
+	optind = 0;
+	opterr = 0;
+
+	if ( rrd_update (3, &argv[1]) != -1 )
+		RETVAL_TRUE;
+	else
+		RETVAL_FALSE;
+
+	safe_efree (argv[1]);
+	safe_efree (argv[2]);
+	safe_efree (argv[3]);
+	safe_efree (argv);
 }
 /* }}} */
 
@@ -188,33 +189,37 @@ PHP_FUNCTION(rrd_update) {
  * Gets last update time of an RRD file
  */
 PHP_FUNCTION(rrd_last) {
-	pval			* file;
-	unsigned long	  retval;
-	char			** argv;
+	char        * file = NULL;
+	int           flen = 0;
+	unsigned long retval;
+	char       ** argv;
     
-	if ( rrd_test_error() )
-		rrd_clear_error();
+	if ( rrd_test_error () )
+		rrd_clear_error ();
+
+	if ( rrd_parameters ("s", &file, &flen) == FAILURE )
+		return;
+
+	if ( flen == 0 ) {
+		php_error (E_WARNING, "1st argument is empty or missing\n");
+		RETURN_FALSE;
+	}
 
 	argv = (char **) emalloc(3 * sizeof(char *));
     
-	if (zend_get_parameters(ht, 1, &file) == SUCCESS) {
-		convert_to_string(file);
+	argv[0] = "dummy";
+	argv[1] = estrdup ("last");
+	argv[2] = flen ? estrdup (file) : NULL;
 
-		argv[0] = "dummy";
-		argv[1] = estrdup("last");
-		argv[2] = estrdup(file->value.str.val);
+	optind = 0;
+	opterr = 0;
+	retval = rrd_last (2, &argv[1]);
 
-		optind = 0; opterr = 0;
-		retval = rrd_last(2, &argv[1]);
+	safe_efree (argv[1]);
+	safe_efree (argv[2]);
+	safe_efree (argv);
 
-		efree(argv[1]);  efree(argv[2]);
-		efree(argv);
-		RETVAL_LONG(retval);
-	} else {
-		efree (argv);
-		WRONG_PARAM_COUNT;
-	}
-	return;
+	RETVAL_LONG(retval);
 }
 /* }}} */
 
@@ -222,70 +227,64 @@ PHP_FUNCTION(rrd_last) {
  * Create an RRD file with the options passed (passed via array)
  */ 
 PHP_FUNCTION(rrd_create) {
-	pval		 * file;
-	pval		 * args;
-	pval		 * p_argc;
-	pval		 * entry;
-	char		** argv;
-	HashTable	 * args_arr;
-	int			   argc, i;
+	char      * file   = NULL;
+	zval      * args   = NULL,
+	int         p_argc = 0,
+				flen   = 0,
+				argc   = 0,
+				i;
+	HashTable * args_arr = NULL;
+	HashPosition pos;
+	char     ** argv     = NULL;
 
-	if ( rrd_test_error() )
-		rrd_clear_error();
+	if ( rrd_test_error () )
+		rrd_clear_error ();
 
-	if ( ZEND_NUM_ARGS() == 3 && getParameters(ht, 3, &file, &args, &p_argc) == SUCCESS ) {
-		if ( args->type != IS_ARRAY ) { 
-			php_error(E_WARNING, "2nd Variable passed to rrd_create is not an array!\n");
-			RETURN_FALSE;
-		}
+	if ( rrd_parameters ("szl", &file, &flen, &args, &p_argc) == FAILURE )
+		return;
 
-		convert_to_long(p_argc);
-		convert_to_string(file);
-		
-		convert_to_array(args);
-		args_arr = args->value.ht;
-		zend_hash_internal_pointer_reset(args_arr);
-
-		argc = p_argc->value.lval + 3;
-		argv = (char **) emalloc(argc * sizeof(char *));
-
-		argv[0] = "dummy";
-		argv[1] = estrdup("create");
-		argv[2] = estrdup(file->value.str.val);
-
-		for (i = 3; i < argc; i++) {
-			pval **dataptr;
-
-			if ( zend_hash_get_current_data(args_arr, (void *) &dataptr) == FAILURE )
-				continue;
-
-			entry = *dataptr;
-
-			if ( entry->type != IS_STRING )
-				convert_to_string(entry);
-
-			argv[i] = estrdup(entry->value.str.val);
-
-			if ( i < argc )
-				zend_hash_move_forward(args_arr);
-		}
-  
-		optind = 0;
-		opterr = 0;
-
-		if ( rrd_create(argc-1, &argv[1]) != -1 ) {
-			RETVAL_TRUE;
-		} else {
-			RETVAL_FALSE;
-		}
-		for (i = 1; i < argc; i++)
-			efree(argv[i]);
-
-		efree(argv);
-	} else {
-	    WRONG_PARAM_COUNT;
+	if ( flen == 0 ) {
+		php_error (E_WARNING, "1st argument is empty or missing\n");
+		RETURN_FALSE;
 	}
-	return;
+
+	args_arr = Z_ARRVAL_P (args);
+	zend_hash_internal_pointer_reset (args_arr);
+
+	argc = p_argc + 3;
+	argv = (char **) emalloc (argc * sizeof (char *));
+
+	argv[0] = "dummy";
+	argv[1] = estrdup ("create");
+	argv[2] = estrdup (file);
+
+	for ( i = 3; i < argc; i++ ) {
+		zval ** dataptr;
+
+		if ( zend_hash_get_current_data_ex (args_arr, (void **) &dataptr, &pos) == FAILURE )
+			continue;
+
+		if ( Z_TYPE_PP (dataptr) != IS_STRING )
+			convert_to_string_ex (dataptr);
+
+		argv[i] = estrdup (Z_STRVAL_PP (dataptr));
+
+		if ( i < argc )
+			zend_hash_move_forward_ex (args_arr, &pos);
+	}
+
+	optind = 0;
+	opterr = 0;
+
+	if ( rrd_create (--argc, &argv[1]) != -1 )
+		RETVAL_TRUE;
+	else
+		RETVAL_FALSE;
+
+	for ( i=1; i<argc; i++ )
+		safe_efree (argv[i]);
+
+	safe_efree (argv);
 }
 /* }}} */
 
@@ -293,96 +292,92 @@ PHP_FUNCTION(rrd_create) {
  * Creates a graph based on options passed via an array
  */
 PHP_FUNCTION(rrd_graph) {
-	pval		 * file;
-	pval		 * args;
-	pval		 * p_argc;
-	pval		 * entry;
-	zval		 * p_calcpr;
-	HashTable	 * args_arr;
-	int			   i, xsize, ysize, argc;
-	char		** argv;
-	char		** calcpr;
+	char         * file   = NULL;
+	zval         * args;
+	int            p_argc = 0,
+				   flen   = 0;
+
+	pval         * entry;
+	zval         * p_calcpr;
+	HashTable    * args_arr;
+	HashPosition   pos;
+	int            i, xsize, ysize, argc;
+	char        ** argv;
+	char        ** calcpr;
 #ifdef SUPPORT_RRD12
-	double		   ymin, ymax;
+	double         ymin, ymax;
 #endif
     
+	if ( rrd_test_error () )
+		rrd_clear_error ();
 
-	if ( rrd_test_error() )
-		rrd_clear_error();
+	if ( rrd_parameters ("szl", &file, &flen, &args, &p_argc) == FAILURE )
+		return;
     
-	if ( ZEND_NUM_ARGS() == 3 && zend_get_parameters(ht, 3, &file, &args, &p_argc) == SUCCESS) {
-		if ( args->type != IS_ARRAY ) { 
-			php_error(E_WARNING, "2nd Variable passed to rrd_graph is not an array!\n");
-			RETURN_FALSE;
-		}
-        
-		convert_to_long(p_argc);
-		convert_to_string(file);
-
-		convert_to_array(args);
-		args_arr = args->value.ht;
-
-		argc = p_argc->value.lval + 3;
-		argv = (char **) emalloc(argc * sizeof(char *));
- 
-		argv[0] = "dummy";
-		argv[1] = estrdup("graph");
-		argv[2] = estrdup(file->value.str.val);
-
-		for (i = 3; i < argc; i++) {
-			pval **dataptr;
-
-			if ( zend_hash_get_current_data(args_arr, (void *) &dataptr) == FAILURE )
-				continue;
-
-			entry = *dataptr;
-
-			if ( entry->type != IS_STRING )
-				convert_to_string(entry);
-
-			argv[i] = estrdup(entry->value.str.val);
-
-			if ( i < argc )
-				zend_hash_move_forward(args_arr);
-		}
-   
-		optind = 0; opterr = 0; 
-#ifdef SUPPORT_RRD12
-		if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize, NULL, &ymin, &ymax) != -1 )
-#else
-		if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize) != -1 )
-#endif
-		{
-			array_init(return_value);
-			add_assoc_long(return_value, "xsize", xsize);
-			add_assoc_long(return_value, "ysize", ysize);
-			add_assoc_long(return_value, "ymin", ymin);
-			add_assoc_long(return_value, "ymax", ymax);
-
-			MAKE_STD_ZVAL(p_calcpr);
-			array_init(p_calcpr);
-    
-			if (calcpr) {
-				for (i = 0; calcpr[i]; i++) {
-					add_next_index_string(p_calcpr, calcpr[i], 1);
-					free(calcpr[i]);
-				}
-				free(calcpr);
-			}
-			zend_hash_update(return_value->value.ht, "calcpr", sizeof("calcpr"), 
-							(void *)&p_calcpr, sizeof(zval *), NULL);
-		} else {
-			RETVAL_FALSE;
-		}
-
-		for (i = 1; i < argc; i++)
-			efree(argv[i]);
-
-		efree(argv);
-	} else { 
-		WRONG_PARAM_COUNT;
+	if ( ! flen ) {
+		php_error (E_WARNING, "1st argumnet is empty or missing!");
+		RETURN_FALSE;
 	}
-	return;
+
+	args_arr = Z_ARRVAL_P (args);
+
+	argc = p_argc + 3;
+	argv = (char **) emalloc(argc * sizeof(char *));
+
+	argv[0] = "dummy";
+	argv[1] = estrdup("graph");
+	argv[2] = estrdup(file);
+
+	for ( i=3; i<argc; i++ ) {
+		zval **dataptr;
+
+		if ( zend_hash_get_current_data_ex (args_arr, (void *) &dataptr, &pos) == FAILURE )
+			continue;
+
+		if ( Z_TYPE_PP (dataptr) != IS_STRING )
+			convert_to_string_ex (dataptr);
+
+		argv[i] = estrdup(Z_STRVAL_PP (dataptr));
+
+		if ( i < argc )
+			zend_hash_move_forward_ex (args_arr, &pos);
+	}
+
+	optind = 0;
+	opterr = 0; 
+
+#ifdef SUPPORT_RRD12
+	if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize, NULL, &ymin, &ymax) == -1 )
+#else
+	if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize) == -1 )
+#endif
+		RETURN_FALSE:
+
+	array_init (return_value);
+	add_assoc_long (return_value, "xsize", xsize);
+	add_assoc_long (return_value, "ysize", ysize);
+	add_assoc_long (return_value, "ymin", ymin);
+	add_assoc_long (return_value, "ymax", ymax);
+
+	MAKE_STD_ZVAL (p_calcpr);
+	array_init (p_calcpr);
+
+	if ( calcpr ) {
+		for ( i=0; calcpr[i]; i++ ) {
+			add_next_index_string (p_calcpr, calcpr[i], 1);
+			free (calcpr[i]);
+		}
+		free (calcpr);
+	}
+	zend_hash_update (
+		eturn_value->value.ht, "calcpr", sizeof("calcpr"), 
+		(void *)&p_calcpr, sizeof(zval *), NULL
+	);
+
+	for ( i=1; i<argc; i++ )
+		safe_efree (argv[i]);
+
+	safe_efree(argv);
 }
 /* }}} */
 
@@ -390,128 +385,137 @@ PHP_FUNCTION(rrd_graph) {
  * Fetch info from an RRD file
  */
 PHP_FUNCTION(rrd_fetch) {
-	pval			 * file, * args, * p_argc;
-	pval			 * entry;
-	pval			 * p_start, * p_end, * p_step, * p_ds_cnt;
-	HashTable		 * args_arr;
-	zval			 * p_ds_namv, * p_data, * p_sum;
-	int				   i, x, argc;
-	time_t			   start, end;
-	unsigned long	   step, ds_cnt;
-	char			** argv, ** ds_namv; 
-	rrd_value_t		 * data, * datap;
+	char           * file = NULL;
+	zval           * args;
+	int              p_argc = 0;
+	
+	char          ** argv,
+				  ** ds_namv;
+	time_t           start, end;
+	unsigned long    step, ds_cnt;
+	rrd_value_t    * data,
+				   * datap;
+	int              argc, i, x;
+
+	HashTable      * args_arr;
+	HashPosition     pos;
+	zval           * p_ds_namv,
+				   * p_data,
+				   * p_sum;
     
-	if ( rrd_test_error() )
-		rrd_clear_error();
-    
-	if ( ZEND_NUM_ARGS() == 3 && zend_get_parameters(ht, 3, &file, &args, &p_argc) == SUCCESS) {
-		if ( args->type != IS_ARRAY ) { 
-			php_error(E_WARNING, "2nd Variable passed to rrd_fetch is not an array!\n");
-			RETURN_FALSE;
-		}
-        
-		convert_to_long(p_argc);
-		convert_to_string(file);
+	if ( rrd_test_error () )
+		rrd_clear_error ();
 
-		convert_to_array(args);
-		args_arr = args->value.ht;
+	if ( rrd_parameters ("szl", &file, &flen, &args, &p_argc) == FAILURE )
+		return;
 
-		argc = p_argc->value.lval + 3;
-		argv = (char **) emalloc(argc * sizeof(char *));
- 
-		argv[0] = "dummy";
-		argv[1] = estrdup("fetch");
-		argv[2] = estrdup(file->value.str.val);
-
-		for (i = 3; i < argc; i++) {
-			pval **dataptr;
-
-			if ( zend_hash_get_current_data(args_arr, (void *) &dataptr) == FAILURE )
-				continue;
-
-			entry = *dataptr;
-
-			if ( entry->type != IS_STRING )
-				convert_to_string(entry);
-
-			argv[i] = estrdup(entry->value.str.val);
-
-			if ( i < argc )
-				zend_hash_move_forward(args_arr);
-		}
-  
-		optind = 0;
-		opterr = 0; 
-
-		if ( rrd_fetch(argc-1, &argv[1], &start,&end,&step,&ds_cnt,&ds_namv,&data) != -1 ) {
-			array_init(return_value);
-			add_assoc_long(return_value, "start", start);
-			add_assoc_long(return_value, "end", end);
-			add_assoc_long(return_value, "step", step);
-			add_assoc_long(return_value, "ds_cnt", ds_cnt);
-
-			MAKE_STD_ZVAL(p_ds_namv);
-			MAKE_STD_ZVAL(p_data);
-			MAKE_STD_ZVAL(p_sum);
-			array_init(p_ds_namv);
-			array_init(p_data);
-			array_init(p_sum);
-   
-			if (ds_namv) {
-				for (i = 0; i < ds_cnt; i++) {
-					add_next_index_string(p_ds_namv, ds_namv[i], 1);
-					free(ds_namv[i]);
-				}
-				free(ds_namv);
-			}
-
-			if (data) {
-				datap = data;
- 
-				for (i = start; i <= end; i += step) {
-					char	t_time[32] = { 0, };
-					char	t_value[1024] = { 0, };
-					char	t_sum[2048] = { 0, };
-					int		tlen = 0;
-
-					sprintf (t_value, "%10lu: ", i);
-					tlen = strlen (t_value);
-
-					for (x = 0; x < ds_cnt; x++) {
-						double	tmp;
-						char	tmp_value[128] = { 0, };
-
-						tmp = *(datap++);
-						add_next_index_double(p_data, tmp);
-
-						sprintf (tmp_value, " %0.10e", tmp);
-						memcpy (t_value + tlen, tmp_value, strlen (tmp_value));
-						tlen = strlen (t_value);
-					}
-					add_next_index_string(p_sum, t_value, 1);
-				}
- 
-				free(data);
-			}
-
-			zend_hash_update(return_value->value.ht, "ds_namv", sizeof("ds_namv"), 
-							(void *)&p_ds_namv, sizeof(zval *), NULL);
-			zend_hash_update(return_value->value.ht, "data", sizeof("data"), 
-							(void *)&p_data, sizeof(zval *), NULL);
-			zend_hash_update(return_value->value.ht, "sum", sizeof("sum"), 
-							(void *)&p_sum, sizeof(zval *), NULL);
-		} else {
-			RETVAL_FALSE;
-		}
-
-		for (i = 1; i < argc; i++)
-			efree(argv[i]);
-
-		efree(argv);
-	} else { 
-		WRONG_PARAM_COUNT;
+	if ( ! flen ) {
+		php_error (E_WARNING, "1st argumnet is empty or missing!");
+		RETURN_FALSE;
 	}
-	return;
+
+	args_arr = Z_ARRVAL_P (args);
+
+	argc = p_argc + 3;
+	argv = (char **) emalloc (argc * sizeof (char *));
+
+	argv[0] = "dummy";
+	argv[1] = estrdup("fetch");
+	argv[2] = estrdup(file);
+
+	for ( i=3; i<argc; i++) {
+		zval **dataptr;
+
+		if ( zend_hash_get_current_data_ex (args_arr, (void *) &dataptr, &pos) == FAILURE )
+			continue;
+
+		if ( Z_TYPE_PP (dataptr) != IS_STRING )
+			convert_to_string_ex (dataptr);
+
+		argv[i] = estrdup (Z_STRVAR_PP (dataptr));
+
+		if ( i < argc )
+			zend_hash_move_forward_ex (args_arr, &pos);
+	}
+
+	optind = 0;
+	opterr = 0; 
+
+	if ( rrd_fetch (argc -1, &argv[1], &start, &end, &step, &ds_cnt, &ds_namv, &data) == -1 )
+		RETURN_FALSE;
+
+	if ( array_init (return_value) == FAILURE ) {
+		RETVAL_FALSE;
+		goto go_free;
+	}
+
+	add_assoc_long (return_value, "start", start);
+	add_assoc_long (return_value, "end", end);
+	add_assoc_long (return_value, "step", step);
+	add_assoc_long (return_value, "ds_cnt", ds_cnt);
+
+	MAKE_STD_ZVAL (p_ds_namv);
+	MAKE_STD_ZVAL (p_data);
+	MAKE_STD_ZVAL (p_sum);
+	array_init (p_ds_namv);
+	array_init (p_data);
+	array_init (p_sum);
+
+	if ( ds_namv ) {
+		for ( i=0; i<ds_cnt; i++ ) {
+			add_next_index_string (p_ds_namv, ds_namv[i], 1);
+			free (ds_namv[i]);
+		}
+		free (ds_namv);
+	}
+
+	if ( data ) {
+		datap = data;
+
+		for ( i=start; i<=end; i += step ) {
+			char t_time[32]    = { 0, },
+				 t_value[1024] = { 0, },
+				 t_sum[2048]   = { 0, };
+			int  tlen = 0;
+
+			sprintf (t_value, "%10lu: ", i);
+			tlen = strlen (t_value);
+
+			for ( x=0; x<ds_cnt; x++ ) {
+				double tmp;
+				char   tmp_value[128] = { 0, };
+
+				tmp = *(datap++);
+				add_next_index_double (p_data, tmp);
+
+				sprintf (tmp_value, " %0.10e", tmp);
+				memcpy (t_value + tlen, tmp_value, strlen (tmp_value));
+				tlen = strlen (t_value);
+			}
+			add_next_index_string (p_sum, t_value, 1);
+		}
+
+		free(data);
+	}
+
+	zend_hash_update (
+		return_value->value.ht, "ds_namv", sizeof("ds_namv"), 
+		(void *)&p_ds_namv, sizeof(zval *), NULL
+	);
+	zend_hash_update (
+		return_value->value.ht, "data", sizeof("data"), 
+		(void *)&p_data, sizeof(zval *), NULL
+	);
+	zend_hash_update (
+		return_value->value.ht, "sum", sizeof("sum"), 
+		(void *)&p_sum, sizeof(zval *), NULL
+	);
+
+go_free:
+	for ( i=1; i<argc; i++ )
+		safe_efree (argv[i]);
+
+	safe_efree (argv);
 }
 /* }}} */
 
@@ -519,46 +523,39 @@ PHP_FUNCTION(rrd_fetch) {
  * Dump an RRD file with XML format
  */
 PHP_FUNCTION(rrd_dump) {
-	zval	**  file;
-	char	** argv;
-	char	 * f;
-	int		   argc, i;
+	char ** argv,
+		  * file = NULL;
+	int     flen = 0,
+			i;
 
 	if ( rrd_test_error() )
 		rrd_clear_error();
 
-	argc = ZEND_NUM_ARGS();
+	if ( rrd_parameters ("s", &file, &flen) == FAILURE )
+		return;
 
-	switch ( argc ) {
-		case 1 :
-			if ( zend_get_parameters_ex (argc, &file) == FAILURE )
-				WRONG_PARAM_COUNT;
-
-			convert_to_string_ex (file);
-			f = Z_STRVAL_PP (file);
-			break;
-		default :
-			WRONG_PARAM_COUNT;
+	if ( ! flen ) {
+		php_error (E_WARNING, "1st argumnet is empty or missing!");
+		RETURN_FALSE;
 	}
 
 	argv = (char **) emalloc (3 * sizeof (char *));
 
 	argv[0] = estrdup ("dummy");
 	argv[1] = estrdup ("dump");
-	argv[2] = estrdup (f);
+	argv[2] = estrdup (file);
 
 	optind = 0;
 	opterr = 0;
 
-	if ( rrd_dump_ex (2, &argv[1]) != -1 ) {
+	if ( rrd_dump_ex (2, &argv[1]) != -1 )
 		RETVAL_TRUE;
-	} else {
+	else
 		RETVAL_FALSE;
-	}
 
 	for ( i=0; i<3; i++ )
-		efree (argv[i]);
-	efree(argv);
+		safe_efree (argv[i]);
+	safe_efree (argv);
 }
 /* }}} */
 
@@ -566,50 +563,43 @@ PHP_FUNCTION(rrd_dump) {
  * Restore an RRD file from XML format
  */
 PHP_FUNCTION(rrd_restore) {
-	zval	** src_t, ** dst_t, ** opt_t;
-	char	** argv, * src, * dst;
-	int		   i, argc, opts, optt;
+	char  ** argv,
+		   * src = NULL,
+		   * dst = NULL;
+	int      opt = 0,
+			 opts = 0,
+			 argc = ZEND_NUM_ARGS (),
+			 i;
 
-	if ( rrd_test_error() )
-		rrd_clear_error();
+	if ( rrd_test_error () )
+		rrd_clear_error ();
 
-	argc = ZEND_NUM_ARGS();
+	if ( rrd_paramters ("ss|l", &src, &slen, &dst, &dlen, &opt) == FAILURE )
+		return;
 
-	switch ( argc ) {
-		case 3 :
-			if ( zend_get_parameters_ex (argc, &src_t, &dst_t, &opt_t) == FAILURE )
-				WRONG_PARAM_COUNT;
-
-			convert_to_long_ex (opt_t);
-			optt = Z_LVAL_PP (opt_t);
-			if ( ! optt ) argc--;
-			break;
-		case 2 :
-			if ( zend_get_parameters_ex (argc, &src_t, &dst_t) == FAILURE )
-				WRONG_PARAM_COUNT;
-
-			argc--;
-			optt = 0;
-			break;
-		default :
-			WRONG_PARAM_COUNT;
+	if ( ! slen ) {
+		php_error (E_WARNING, "1st argumnet is empty or missing!");
+		RETURN_FALSE;
 	}
 
-	convert_to_string_ex (src_t);
-	convert_to_string_ex (dst_t);
-	src = Z_STRVAL_PP (src_t);
-	dst = Z_STRVAL_PP (dst_t);
+	if ( ! dlen ) {
+		php_error (E_WARNING, "2st argumnet is empty or missing!");
+		RETURN_FALSE;
+	}
+
+	if ( ! opt && argc == 3 )
+		argc--;
 
 	opts = argc + 2;
 
 	argv = (char **) emalloc (opts * sizeof (char *));
 
 	i = 0;
-	argv[0] = "dummy";
+	argv[i] = "dummy";
 	argv[++i] = estrdup ("restore");
 	argc = 1;
 
-	if ( optt > 0 ) {
+	if ( opt > 0 ) {
 		argv[++i] = estrdup ("-r");
 		argc++;
 	}
@@ -621,16 +611,15 @@ PHP_FUNCTION(rrd_restore) {
 	optind = 0;
 	opterr = 0;
 
-	if ( rrd_restore_ex (argc, &argv[1]) != -1 ) {
+	if ( rrd_restore_ex (argc, &argv[1]) != -1 )
 		RETVAL_TRUE;
-	} else {
+	else
 		RETVAL_FALSE;
-	}
 
 	for ( i=1; i<opts; i++ ) {
-		efree (argv[i]);
+		safe_efree (argv[i]);
 	}
-	efree (argv);
+	safe_efree (argv);
 }
 /* }}} */
 
@@ -639,44 +628,45 @@ PHP_FUNCTION(rrd_restore) {
  * Return the date of the first data sample in an RRA within an RRD
  */
 PHP_FUNCTION(rrd_first) {
-	pval			* file, *index;
-	unsigned long	  retval;
-	int				  f_argc = 0, i;
-	char			** argv;
+	char         * file   = NULL,
+				 * index  = NULL;
+	int             flen   = 0,
+					ilen   = 0,
+					f_argc = 2,
+					i;
 
-	if ( rrd_test_error() )
-		rrd_clear_error();
+	char         ** argv;
+	unsigned int    retval = 0;
+
+	if ( rrd_test_error () )
+		rrd_clear_error ();
+
+	if ( rrd_parameters ("s|s", &file, &flen, &index, &ilen) == FAILURE )
+		return;
     
-	argv = (char **) emalloc(4 * sizeof(char *));
+	if ( flen == 0 ) {
+		php_error (E_WARNING, "1st argument is empty or missing\n");
+		RETURN_FALSE;
+	}
+
+	argv = (char **) emalloc (4 * sizeof (char *));
 
 	argv[0] = estrdup ("dummy");
 	argv[1] = estrdup ("first");
-    
-	if (zend_get_parameters(ht, 1, &file) == SUCCESS) {
-		convert_to_string(file);
-		argv[2] = estrdup(file->value.str.val);
-		f_argc = 2;
-	} else if (zend_get_parameters(ht, 2, &file, &index) == SUCCESS) {
-		convert_to_string(file);
-		convert_to_string(index);
-
-		argv[2] = estrdup(file->value.str.val);
-		argv[3] = estrdup(index->value.str.val);
-		f_argc = 3;
-	} else {
-		for ( i=0; i<2; i++ )
-			efree (argv[i]);
-		efree (argv);
-		WRONG_PARAM_COUNT;
+	argv[2] = estrdup (file);
+	if ( ilen ) {
+		argv[3] = estrdup (index);
+		f_argc++;
 	}
 
-	optind = 0; opterr = 0;
+	optind = 0;
+	opterr = 0;
 	retval = rrd_first (f_argc, &argv[1]);
 
 	for ( i=0; i<=f_argc; i++ )
-		efree (argv[i]);
-	efree(argv);
-	RETVAL_LONG(retval);
+		safe_efree (argv[i]);
+	safe_efree (argv);
+	RETVAL_LONG (retval);
 }
 /* }}} */
 #endif /* SUPPORT_RRD12 */
@@ -686,18 +676,22 @@ PHP_FUNCTION(rrd_first) {
  * Return a string to confirm that the module is compiled in */
 PHP_FUNCTION(confirm_rrdtool_compiled)
 {
-	char	* arg = NULL;
-	int		arg_len, len;
-	char	string[256];
+	char * arg = NULL;
+	int    alen, len;
+	char   string[256] = { 0, };
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
+	if ( rrd_parameters ("s", &arg, &alen) == FAILURE )
 		return;
+
+	if ( alen == 0 ) {
+		php_error (E_WARNING, "1st argument is empty or missing!");
+		RETURN_FALSE;
 	}
 
-	len = sprintf(string, "Congratulations! You have successfully "
+	len = sprintf (string, "Congratulations! You have successfully "
 						  "modified ext/%.78s/config.m4. Module %.78s "
 						  "is now compiled into PHP.", "rrdtool", arg);
-	RETURN_STRINGL(string, len, 1);
+	RETURN_STRINGL (string, len, 1);
 }
 /* }}} */
 

@@ -88,6 +88,13 @@ PHP_FUNCTION(rrd_first);
 
 #define phpext_rrd_ptr rrd_module_ptr
 
+#define rrd_parameters(...) \
+	    zend_parse_parameters (ZEND_NUM_ARGS() TSRMLS_CC, __VA_ARGS__)
+
+#ifndef safe_efree
+#define safe_efree(x) if ( x != NULL ) efree (x)
+#endif
+
 #endif  /* _MOD_RRD_H */
 
 /*
