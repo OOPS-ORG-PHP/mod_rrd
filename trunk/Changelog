@@ -2,10 +2,17 @@ $Id$
 
 PHP rrdtool Extensoin Changelog
 
+* 1.2.3
+--------------------------------------------------------------------------------
+
+* Tue Nov 13 2012 JoungKyun.Kim <http://oops.org>
+- fixed deprecated zend_get_parameters_ex
+
+
 * 1.2.2
 --------------------------------------------------------------------------------
 
-* Thu Mar 12 2009 JoungKyun.Kim <http://oops.org>j
+* Thu Mar 12 2009 JoungKyun.Kim <http://oops.org>
 - fixed lib_arg_lgpl link search
 - update bundle rrdlib12 to 1.2.30
 
