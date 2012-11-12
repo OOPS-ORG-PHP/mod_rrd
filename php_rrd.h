@@ -36,7 +36,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id$
+ * $Id: php_rrd.h,v 1.4 2007-09-28 09:51:36 oops Exp $
  *
  */
 

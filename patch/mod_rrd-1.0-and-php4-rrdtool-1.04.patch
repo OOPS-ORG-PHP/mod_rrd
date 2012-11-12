@@ -2,7 +2,7 @@ diff -urN php4-rrdtool-1.04/Changelog mod_rrd-1.0.0/Changelog
 --- php4-rrdtool-1.04/Changelog	1970-01-01 09:00:00.000000000 +0900
 +++ mod_rrd-1.0.0/Changelog	2004-07-28 05:14:29.000000000 +0900
 @@ -0,0 +1,21 @@
-+$Id$
++$Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 +
 +PHP rrdtool Extensoin Changelog
 +
@@ -27,8 +27,8 @@ diff -urN php4-rrdtool-1.04/FAQ mod_rrd-1.0.0/FAQ
 --- php4-rrdtool-1.04/FAQ	2001-12-23 05:10:58.000000000 +0900
 +++ mod_rrd-1.0.0/FAQ	2004-07-28 04:58:19.000000000 +0900
 @@ -1,29 +1,36 @@
--# $Id$
-+# $Id$
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
++# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
  #
  
 +Q:  rrd_graph() 함수의 출력을 이미지가 아닌 stdout 으로 출력하고 싶습니
@@ -85,8 +85,8 @@ diff -urN php4-rrdtool-1.04/INSTALL mod_rrd-1.0.0/INSTALL
 --- php4-rrdtool-1.04/INSTALL	2001-12-23 05:10:58.000000000 +0900
 +++ mod_rrd-1.0.0/INSTALL	2004-07-27 23:56:59.000000000 +0900
 @@ -1,79 +1,94 @@
--$Id$
-+$Id$
+-$Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
++$Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
  
 -* Installing rrdtool module as a self-contained extension:
 +* mod_rrd 를 빌드하기 위한 조건
@@ -249,7 +249,7 @@ diff -urN php4-rrdtool-1.04/Makefile.in mod_rrd-1.0.0/Makefile.in
 --- php4-rrdtool-1.04/Makefile.in	2001-08-24 07:39:59.000000000 +0900
 +++ mod_rrd-1.0.0/Makefile.in	1970-01-01 09:00:00.000000000 +0900
 @@ -1,8 +0,0 @@
--# $Id$
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 -
 -LTLIBRARY_NAME        = librrdtool.la
 -LTLIBRARY_SOURCES     = rrdtool.c
@@ -261,8 +261,8 @@ diff -urN php4-rrdtool-1.04/README mod_rrd-1.0.0/README
 --- php4-rrdtool-1.04/README	2003-06-12 08:30:35.000000000 +0900
 +++ mod_rrd-1.0.0/README	2004-07-28 03:51:24.000000000 +0900
 @@ -1,89 +1,13 @@
--$Id$
-+$Id$
+-$Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
++$Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
  
 -1.04:  only update is the change to the BSD license to make
 -       php4_rrdtool includable in Debian/Linux distributions.
@@ -363,8 +363,8 @@ diff -urN php4-rrdtool-1.04/USAGE mod_rrd-1.0.0/USAGE
 --- php4-rrdtool-1.04/USAGE	2001-08-24 07:19:21.000000000 +0900
 +++ mod_rrd-1.0.0/USAGE	2004-07-28 04:55:09.000000000 +0900
 @@ -1,26 +1,20 @@
--$Id$
-+$Id$
+-$Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
++$Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
  
  --------------------------------------------------
 -Usage:
@@ -670,7 +670,7 @@ diff -urN php4-rrdtool-1.04/acinclude.m4 mod_rrd-1.0.0/acinclude.m4
 --- php4-rrdtool-1.04/acinclude.m4	2001-08-24 07:40:23.000000000 +0900
 +++ mod_rrd-1.0.0/acinclude.m4	1970-01-01 09:00:00.000000000 +0900
 @@ -1,1000 +0,0 @@
--dnl $Id$
+-dnl $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 -dnl
 -dnl This file contains local autoconf functions.
 -
@@ -1686,7 +1686,7 @@ diff -urN php4-rrdtool-1.04/aclocal.m4 mod_rrd-1.0.0/aclocal.m4
 -dnl even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 -dnl PARTICULAR PURPOSE.
 -
--dnl $Id$
+-dnl $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 -dnl
 -dnl This file contains local autoconf functions.
 -
@@ -3113,7 +3113,7 @@ diff -urN php4-rrdtool-1.04/build/dynlib.mk mod_rrd-1.0.0/build/dynlib.mk
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$ 
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $ 
 -#
 -
 -all: all-recursive
@@ -3143,7 +3143,7 @@ diff -urN php4-rrdtool-1.04/build/fastgen.sh mod_rrd-1.0.0/build/fastgen.sh
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$ 
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $ 
 -#
 -
 -srcdir=$1
@@ -3221,7 +3221,7 @@ diff -urN php4-rrdtool-1.04/build/library.mk mod_rrd-1.0.0/build/library.mk
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$ 
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $ 
 -#
 -
 -LTLIBRARY_OBJECTS = $(LTLIBRARY_SOURCES:.c=.lo) $(LTLIBRARY_OBJECTS_X)
@@ -3248,7 +3248,7 @@ diff -urN php4-rrdtool-1.04/build/ltlib.mk mod_rrd-1.0.0/build/ltlib.mk
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$ 
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $ 
 -#
 -
 -targets = $(LTLIBRARY_NAME)
@@ -3276,7 +3276,7 @@ diff -urN php4-rrdtool-1.04/build/mkdep.awk mod_rrd-1.0.0/build/mkdep.awk
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 -#
 -# Usage:
 -#
@@ -3355,7 +3355,7 @@ diff -urN php4-rrdtool-1.04/build/program.mk mod_rrd-1.0.0/build/program.mk
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$ 
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $ 
 -#
 -
 -PROGRAM_OBJECTS = $(PROGRAM_SOURCES:.c=.lo)
@@ -3382,7 +3382,7 @@ diff -urN php4-rrdtool-1.04/build/rules.mk mod_rrd-1.0.0/build/rules.mk
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$ 
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $ 
 -#
 -
 -include $(top_srcdir)/build/rules_common.mk
@@ -3462,7 +3462,7 @@ diff -urN php4-rrdtool-1.04/build/rules_common.mk mod_rrd-1.0.0/build/rules_comm
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$ 
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $ 
 -#
 -
 -include $(top_builddir)/config_vars.mk
@@ -5364,7 +5364,7 @@ diff -urN php4-rrdtool-1.04/config.m4 mod_rrd-1.0.0/config.m4
 --- php4-rrdtool-1.04/config.m4	2001-08-24 07:40:04.000000000 +0900
 +++ mod_rrd-1.0.0/config.m4	2004-07-27 21:43:56.000000000 +0900
 @@ -1,24 +1,77 @@
- dnl $Id$
+ dnl $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
  
 -PHP_ARG_WITH(rrdtool, for RRDTool support,
 -[  --with-rrdtool[=DIR]      Include RRDTool support.  DIR is the rrdtool
@@ -9034,7 +9034,7 @@ diff -urN php4-rrdtool-1.04/dynlib.m4 mod_rrd-1.0.0/dynlib.m4
 -#  | Authors: Sascha Schumann <sascha@schumann.cx>                        |
 -#  +----------------------------------------------------------------------+
 -#
--# $Id$ 
+-# $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $ 
 -#
 -
 -
@@ -16498,7 +16498,7 @@ diff -urN php4-rrdtool-1.04/php_rrd.h mod_rrd-1.0.0/php_rrd.h
 + * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 + * POSSIBILITY OF SUCH DAMAGE.
 + *
-+ * $Id$
++ * $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 + *
 + */
 +
@@ -16598,7 +16598,7 @@ diff -urN php4-rrdtool-1.04/php_rrdtool.h mod_rrd-1.0.0/php_rrdtool.h
 - * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 - * POSSIBILITY OF SUCH DAMAGE.
 - *
-- * $Id$
+- * $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 - *
 - */
 -
@@ -16675,7 +16675,7 @@ diff -urN php4-rrdtool-1.04/rrd.c mod_rrd-1.0.0/rrd.c
 + *
 + * See README, INSTALL, and USAGE files for more details.
 + *
-+ * $Id$
++ * $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 + *
 + */
 +
@@ -17323,7 +17323,7 @@ diff -urN php4-rrdtool-1.04/rrdlib/rrd_dump.c mod_rrd-1.0.0/rrdlib/rrd_dump.c
 + *****************************************************************************
 + * rrd_dump  Display a RRD
 + *****************************************************************************
-+ * $Id$
++ * $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 + * $Log: not supported by cvs2svn $
 + * Revision 1.1.1.1  2002/02/26 10:21:37  oetiker
 + * Intial Import
@@ -17875,7 +17875,7 @@ diff -urN php4-rrdtool-1.04/rrdtool.c mod_rrd-1.0.0/rrdtool.c
 - *
 - * See README, INSTALL, and USAGE files for more details.
 - *
-- * $Id$
+- * $Id: mod_rrd-1.0-and-php4-rrdtool-1.04.patch,v 1.1.1.1 2004-07-28 05:56:11 oops Exp $
 - *
 - */
 -
