@@ -5,9 +5,9 @@
  *
  *
  * Joe Miller, <joeym@joeym.net> 2/12/2000 & 7/18/2000 php4-rrdtool 1.04
- * JoungKyun.Kim, <http://devel.oops.org> forking mod_rrd
+ * JoungKyun Kim, <http://devel.oops.org> forking mod_rrd
  *
- * Copyright (c) 2007, JoungKyun.Kim
+ * Copyright (c) 2004, JoungKyun Kim
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
  *
  * See README, INSTALL, and USAGE files for more details.
  *
- * $Id$
+ * $Id: rrd.c,v 1.1.1.1 2004-07-28 05:56:08 oops Exp $
  *
  */
 
@@ -75,9 +75,6 @@ function_entry rrd_functions[] = {
 	PHP_FE(rrd_create, NULL)
 	PHP_FE(rrd_dump, NULL)
 	PHP_FE(rrd_restore, NULL)
-#ifdef SUPPORT_RRD12
-	PHP_FE(rrd_first, NULL)
-#endif
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -190,12 +187,11 @@ PHP_FUNCTION(rrd_update) {
 PHP_FUNCTION(rrd_last) {
 	pval			* file;
 	unsigned long	  retval;
-	char			** argv;
+
+	char **argv = (char **) emalloc(3 * sizeof(char *));
     
 	if ( rrd_test_error() )
 		rrd_clear_error();
-
-	argv = (char **) emalloc(3 * sizeof(char *));
     
 	if (zend_get_parameters(ht, 1, &file) == SUCCESS) {
 		convert_to_string(file);
@@ -211,7 +207,6 @@ PHP_FUNCTION(rrd_last) {
 		efree(argv);
 		RETVAL_LONG(retval);
 	} else {
-		efree (argv);
 		WRONG_PARAM_COUNT;
 	}
 	return;
@@ -302,9 +297,6 @@ PHP_FUNCTION(rrd_graph) {
 	int			   i, xsize, ysize, argc;
 	char		** argv;
 	char		** calcpr;
-#ifdef SUPPORT_RRD12
-	double		   ymin, ymax;
-#endif
     
 
 	if ( rrd_test_error() )
@@ -347,17 +339,10 @@ PHP_FUNCTION(rrd_graph) {
 		}
    
 		optind = 0; opterr = 0; 
-#ifdef SUPPORT_RRD12
-		if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize, NULL, &ymin, &ymax) != -1 )
-#else
-		if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize) != -1 )
-#endif
-		{
+		if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize) != -1 ) {
 			array_init(return_value);
 			add_assoc_long(return_value, "xsize", xsize);
 			add_assoc_long(return_value, "ysize", ysize);
-			add_assoc_long(return_value, "ymin", ymin);
-			add_assoc_long(return_value, "ymax", ymax);
 
 			MAKE_STD_ZVAL(p_calcpr);
 			array_init(p_calcpr);
@@ -522,7 +507,7 @@ PHP_FUNCTION(rrd_dump) {
 	zval	**  file;
 	char	** argv;
 	char	 * f;
-	int		   argc, i;
+	int		   argc;
 
 	if ( rrd_test_error() )
 		rrd_clear_error();
@@ -543,7 +528,7 @@ PHP_FUNCTION(rrd_dump) {
 
 	argv = (char **) emalloc (3 * sizeof (char *));
 
-	argv[0] = estrdup ("dummy");
+	argv[0] = "dummy";
 	argv[1] = estrdup ("dump");
 	argv[2] = estrdup (f);
 
@@ -556,8 +541,8 @@ PHP_FUNCTION(rrd_dump) {
 		RETVAL_FALSE;
 	}
 
-	for ( i=0; i<3; i++ )
-		efree (argv[i]);
+	efree(argv[1]);
+	efree(argv[2]);
 	efree(argv);
 }
 /* }}} */
@@ -633,53 +618,6 @@ PHP_FUNCTION(rrd_restore) {
 	efree (argv);
 }
 /* }}} */
-
-#ifdef SUPPORT_RRD12
-/* {{{ proto int rrd_first(string file, string index)
- * Return the date of the first data sample in an RRA within an RRD
- */
-PHP_FUNCTION(rrd_first) {
-	pval			* file, *index;
-	unsigned long	  retval;
-	int				  f_argc = 0, i;
-	char			** argv;
-
-	if ( rrd_test_error() )
-		rrd_clear_error();
-    
-	argv = (char **) emalloc(4 * sizeof(char *));
-
-	argv[0] = estrdup ("dummy");
-	argv[1] = estrdup ("first");
-    
-	if (zend_get_parameters(ht, 1, &file) == SUCCESS) {
-		convert_to_string(file);
-		argv[2] = estrdup(file->value.str.val);
-		f_argc = 2;
-	} else if (zend_get_parameters(ht, 2, &file, &index) == SUCCESS) {
-		convert_to_string(file);
-		convert_to_string(index);
-
-		argv[2] = estrdup(file->value.str.val);
-		argv[3] = estrdup(index->value.str.val);
-		f_argc = 3;
-	} else {
-		for ( i=0; i<2; i++ )
-			efree (argv[i]);
-		efree (argv);
-		WRONG_PARAM_COUNT;
-	}
-
-	optind = 0; opterr = 0;
-	retval = rrd_first (f_argc, &argv[1]);
-
-	for ( i=0; i<=f_argc; i++ )
-		efree (argv[i]);
-	efree(argv);
-	RETVAL_LONG(retval);
-}
-/* }}} */
-#endif /* SUPPORT_RRD12 */
 
 /* {{{ Every user-visible function in PHP should document itself in the source
  * proto string confirm_rrdtool_compiled(string arg)
