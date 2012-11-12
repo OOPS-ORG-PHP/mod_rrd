@@ -1,5 +1,5 @@
 /*****************************************************************************
- * RRDtool 1.2.30  Copyright by Tobi Oetiker, 1997-2009
+ * RRDtool 1.2.23  Copyright by Tobi Oetiker, 1997-2007
  *****************************************************************************
  * rrd_format.h  RRD Database Format header
  *****************************************************************************/
@@ -13,15 +13,11 @@
 #define RRD_VERSION   "0003"
 #define FLOAT_COOKIE  8.642135E130
 
-#ifndef PHP_H
-#include "php.h"
-#endif
-
 #define printf php_printf
 #define puts php_printf
 #define fputs(s, f) php_printf (s)
 #define free efree
-#define malloc emalloc
+#define malloc emallocf
 
 #define RRD_READONLY    0
 #define RRD_READWRITE   1

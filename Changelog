@@ -1,26 +1,6 @@
-$Id$
+$Id: Changelog,v 1.5 2007-08-07 04:50:29 oops Exp $
 
 PHP rrdtool Extensoin Changelog
-
-* 1.2.2
---------------------------------------------------------------------------------
-
-* Thu Mar 12 2009 JoungKyun.Kim <http://oops.org>j
-- fixed lib_arg_lgpl link search
-- update bundle rrdlib12 to 1.2.30
-
-* Tue Jul 15 2008 JoungKyun.Kim <http://oops.org>
-- support 64bit library check
-
-
-* 1.2.1
---------------------------------------------------------------------------------
-
-* Fri Sep 28 2007 JoungKyun.Kim <http://oops.org>
-- fixed undefine symbol emallocf
-- check libart_lgpl_2 library when linked rrdtool 1.2 on config.m4
-- fixed efree symbol error
-
 
 * 1.2.0
 --------------------------------------------------------------------------------
