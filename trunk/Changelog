@@ -5,6 +5,9 @@ PHP rrdtool Extensoin Changelog
 * 1.2.3
 --------------------------------------------------------------------------------
 
+* Thu Nov 15 2012 JoungKyun.Kim <http://oops.org>
+- don't use bundle rrd_dump, rrd_restre api any more
+
 * Tue Nov 13 2012 JoungKyun.Kim <http://oops.org>
 - fixed deprecated zend_get_parameters_ex
 
