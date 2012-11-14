@@ -63,8 +63,13 @@ static int le_rrd;
 /* {{{ rrd_functions[]
  *
  * Every user visible function must have an entry in rrd_functions[].
+ * todo: rrdinfo
+ *       rrdlastupdate
+ *       rrdresize
+ *       rrdtune
+ *       rrdxport
  */
-function_entry rrd_functions[] = {
+const zend_function_entry rrd_functions[] = {
 	PHP_FE(confirm_rrdtool_compiled, NULL)
 	PHP_FE(rrd_error, NULL)
 	PHP_FE(rrd_clear_error, NULL)
@@ -228,7 +233,7 @@ PHP_FUNCTION(rrd_last) {
  */ 
 PHP_FUNCTION(rrd_create) {
 	char      * file   = NULL;
-	zval      * args   = NULL,
+	zval      * args   = NULL;
 	int         p_argc = 0,
 				flen   = 0,
 				argc   = 0,
@@ -249,7 +254,7 @@ PHP_FUNCTION(rrd_create) {
 	}
 
 	args_arr = Z_ARRVAL_P (args);
-	zend_hash_internal_pointer_reset (args_arr);
+	zend_hash_internal_pointer_reset_ex (args_arr, &pos);
 
 	argc = p_argc + 3;
 	argv = (char **) emalloc (argc * sizeof (char *));
@@ -297,7 +302,6 @@ PHP_FUNCTION(rrd_graph) {
 	int            p_argc = 0,
 				   flen   = 0;
 
-	pval         * entry;
 	zval         * p_calcpr;
 	HashTable    * args_arr;
 	HashPosition   pos;
@@ -320,6 +324,7 @@ PHP_FUNCTION(rrd_graph) {
 	}
 
 	args_arr = Z_ARRVAL_P (args);
+	zend_hash_internal_pointer_reset_ex (args_arr, &pos);
 
 	argc = p_argc + 3;
 	argv = (char **) emalloc(argc * sizeof(char *));
@@ -351,7 +356,7 @@ PHP_FUNCTION(rrd_graph) {
 #else
 	if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize) == -1 )
 #endif
-		RETURN_FALSE:
+		RETURN_FALSE;
 
 	array_init (return_value);
 	add_assoc_long (return_value, "xsize", xsize);
@@ -370,7 +375,7 @@ PHP_FUNCTION(rrd_graph) {
 		free (calcpr);
 	}
 	zend_hash_update (
-		eturn_value->value.ht, "calcpr", sizeof("calcpr"), 
+		return_value->value.ht, "calcpr", sizeof("calcpr"), 
 		(void *)&p_calcpr, sizeof(zval *), NULL
 	);
 
@@ -387,7 +392,8 @@ PHP_FUNCTION(rrd_graph) {
 PHP_FUNCTION(rrd_fetch) {
 	char           * file = NULL;
 	zval           * args;
-	int              p_argc = 0;
+	int              p_argc = 0,
+					 flen   = 0;
 	
 	char          ** argv,
 				  ** ds_namv;
@@ -415,6 +421,7 @@ PHP_FUNCTION(rrd_fetch) {
 	}
 
 	args_arr = Z_ARRVAL_P (args);
+	zend_hash_internal_pointer_reset_ex (args_arr, &pos);
 
 	argc = p_argc + 3;
 	argv = (char **) emalloc (argc * sizeof (char *));
@@ -426,13 +433,13 @@ PHP_FUNCTION(rrd_fetch) {
 	for ( i=3; i<argc; i++) {
 		zval **dataptr;
 
-		if ( zend_hash_get_current_data_ex (args_arr, (void *) &dataptr, &pos) == FAILURE )
+		if ( zend_hash_get_current_data_ex (args_arr, (void **) &dataptr, &pos) == FAILURE )
 			continue;
 
 		if ( Z_TYPE_PP (dataptr) != IS_STRING )
 			convert_to_string_ex (dataptr);
 
-		argv[i] = estrdup (Z_STRVAR_PP (dataptr));
+		argv[i] = estrdup (Z_STRVAL_PP (dataptr));
 
 		if ( i < argc )
 			zend_hash_move_forward_ex (args_arr, &pos);
@@ -524,14 +531,22 @@ go_free:
  */
 PHP_FUNCTION(rrd_dump) {
 	char ** argv,
-		  * file = NULL;
+		  * file = NULL,
+		  * temp = NULL;
 	int     flen = 0,
-			i;
+			nohead = 0,
+			argc = ZEND_NUM_ARGS (),
+			i, n;
+	zval  * ob;
+
+	FILE * fp;
+	char buf[8192] = { 0, };
 
 	if ( rrd_test_error() )
 		rrd_clear_error();
 
-	if ( rrd_parameters ("s", &file, &flen) == FAILURE )
+	// nohead is 1.3
+	if ( rrd_parameters ("s|b", &file, &flen, &nohead) == FAILURE )
 		return;
 
 	if ( ! flen ) {
@@ -541,19 +556,49 @@ PHP_FUNCTION(rrd_dump) {
 
 	argv = (char **) emalloc (3 * sizeof (char *));
 
-	argv[0] = estrdup ("dummy");
-	argv[1] = estrdup ("dump");
-	argv[2] = estrdup (file);
+	if ( (temp = tempnam ("/tmp", "rre-")) == NULL ) {
+		php_error (E_WARNING, "Failed create temporary file");
+		RETURN_FALSE;
+	}
+
+	n = 0;
+	argv[n] = estrdup ("dummy");
+	argv[++n] = estrdup ("dump");
+#ifdef SUPPORT_RRD13
+	if ( nohead )
+		argv[++n] = estrdup ("-n");
+#endif
+	argv[++n] = estrdup (file);
+	argv[++n] = estrdup (temp);
 
 	optind = 0;
 	opterr = 0;
 
-	if ( rrd_dump_ex (2, &argv[1]) != -1 )
-		RETVAL_TRUE;
-	else
-		RETVAL_FALSE;
+	flen = rrd_dump (n, &argv[1]);
 
-	for ( i=0; i<3; i++ )
+	if ( flen != 0 ) {
+		RETVAL_FALSE;
+		goto free_var;
+	}
+
+	if ( (fp = fopen (temp, "r")) == NULL ) {
+		unlink (temp);
+		RETVAL_FALSE;
+		goto free_var;
+	}
+
+	while ( (i = fread (&buf, sizeof (char), 8000, fp)) ) {
+		PHPWRITE (buf, i);
+		memset (buf, 0, 8192);
+	}
+
+	fclose (fp);
+	unlink (temp);
+
+	RETVAL_TRUE;
+
+free_var:
+	for ( i=0; i<n; i++ )
 		safe_efree (argv[i]);
 	safe_efree (argv);
 }
@@ -566,7 +611,9 @@ PHP_FUNCTION(rrd_restore) {
 	char  ** argv,
 		   * src = NULL,
 		   * dst = NULL;
-	int      opt = 0,
+	int      slen = 0,
+			 dlen = 0,
+			 opt  = 0,
 			 opts = 0,
 			 argc = ZEND_NUM_ARGS (),
 			 i;
@@ -574,7 +621,7 @@ PHP_FUNCTION(rrd_restore) {
 	if ( rrd_test_error () )
 		rrd_clear_error ();
 
-	if ( rrd_paramters ("ss|l", &src, &slen, &dst, &dlen, &opt) == FAILURE )
+	if ( rrd_parameters ("ss|b", &src, &slen, &dst, &dlen, &opt) == FAILURE )
 		return;
 
 	if ( ! slen ) {
@@ -611,14 +658,13 @@ PHP_FUNCTION(rrd_restore) {
 	optind = 0;
 	opterr = 0;
 
-	if ( rrd_restore_ex (argc, &argv[1]) != -1 )
+	if ( rrd_restore (argc, &argv[1]) != -1 )
 		RETVAL_TRUE;
 	else
 		RETVAL_FALSE;
 
-	for ( i=1; i<opts; i++ ) {
+	for ( i=1; i<opts; i++ )
 		safe_efree (argv[i]);
-	}
 	safe_efree (argv);
 }
 /* }}} */

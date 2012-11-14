@@ -65,38 +65,76 @@ if test "$PHP_RRD" != "no"; then
 
 	#AC_CHECK_LIB(rrd, rrd_test_error,, [AC_MSG_ERROR([Can't not found rrd library (-lrrd)])])
 	AC_CHECK_LIB(rrd, rrd_first, [
-		AC_DEFINE([SUPPORT_RRD12],[1],[supprot rrdtool 1.2])
-		AC_MSG_CHECKING(rrdtool version)
-		AC_MSG_RESULT(1.2.x)
-		rrd_lib_postfix="12"
-		for i in $SEARCH_PATH $LIBSEARCH
-		do
-			if test -f $i/libart_lgpl_2.$SHLIB_SUFFIX_NAME -o -f $i/libart_lgpl_2.a; then
-				ART_LIB_DIR=$i
-				break;
+		pkg-config librrd > /dev/null 2>&1
+		if test $? -eq 0; then
+			RRDVER=`pkg-config --modversion librrd | awk -F. '{print $1$2}'`
+
+			AC_MSG_CHECKING(rrdtool version)
+			AC_DEFINE([SUPPORT_RRD12],[1],[supprot rrdtool 1.2])
+			if test $RRDVER = "12"; then
+				AC_MSG_RESULT(1.2.x)
+				for i in $SEARCH_PATH $LIBSEARCH
+				do
+					if test -f $i/libart_lgpl_2.$SHLIB_SUFFIX_NAME -o -f $i/libart_lgpl_2.a; then
+						ART_LIB_DIR=$i
+						break;
+					fi
+
+					if test -f $i/$PHP_LIBDIR/libart_lgpl_2.$SHLIB_SUFFIX_NAME -o -f $i/$PHP_LIBDIR/libart_lgpl_2.a; then
+						ART_LIB_DIR=$i/$PHP_LIBDIR
+						break;
+					fi
+				done
+
+				if test -z "$ART_LIB_DIR"; then
+					AC_MSG_ERROR([libart_lgpl_2.(a|so) not found.])
+				fi
+
+				AC_CHECK_LIB(art_lgpl_2, art_svp_free,, [
+					AC_MSG_ERROR([Can't not found arg_lgpl_2 library (-lart_lgpl_2)])
+				])
+				PHP_ADD_LIBRARY_WITH_PATH(art_lgpl_2, $ART_LIB_DIR, RRD_SHARED_LIBADD)
+			elif test $RRDVER = "13"; then
+				AC_DEFINE([SUPPORT_RRD13],[1],[supprot rrdtool 1.3])
+				AC_MSG_RESULT(1.3.x)
+			elif test $RRDVER = "14"; then
+				AC_DEFINE([SUPPORT_RRD13],[1],[supprot rrdtool 1.3])
+				AC_DEFINE([SUPPORT_RRD14],[1],[supprot rrdtool 1.4])
+				AC_MSG_RESULT(1.4.x)
+			fi
+		else
+			AC_DEFINE([SUPPORT_RRD12],[1],[supprot rrdtool 1.2])
+			AC_MSG_CHECKING(rrdtool version)
+			AC_MSG_RESULT(1.2.x)
+			rrd_lib_postfix="12"
+			for i in $SEARCH_PATH $LIBSEARCH
+			do
+				if test -f $i/libart_lgpl_2.$SHLIB_SUFFIX_NAME -o -f $i/libart_lgpl_2.a; then
+					ART_LIB_DIR=$i
+					break;
+				fi
+	
+				if test -f $i/$PHP_LIBDIR/libart_lgpl_2.$SHLIB_SUFFIX_NAME -o -f $i/$PHP_LIBDIR/libart_lgpl_2.a; then
+					ART_LIB_DIR=$i/$PHP_LIBDIR
+					break;
+				fi
+			done
+
+			if test -z "$ART_LIB_DIR"; then
+				AC_MSG_ERROR([libart_lgpl_2.(a|so) not found.])
 			fi
 
-			if test -f $i/$PHP_LIBDIR/libart_lgpl_2.$SHLIB_SUFFIX_NAME -o -f $i/$PHP_LIBDIR/libart_lgpl_2.a; then
-				ART_LIB_DIR=$i/$PHP_LIBDIR
-				break;
-			fi
-		done
-
-		if test -z "$ART_LIB_DIR"; then
-			AC_MSG_ERROR([libart_lgpl_2.(a|so) not found.])
+			AC_CHECK_LIB(art_lgpl_2, art_svp_free,, [
+				AC_MSG_ERROR([Can't not found arg_lgpl_2 library (-lart_lgpl_2)])
+			])
+			PHP_ADD_LIBRARY_WITH_PATH(art_lgpl_2, $ART_LIB_DIR, RRD_SHARED_LIBADD)
 		fi
-
-		AC_CHECK_LIB(art_lgpl_2, art_svp_free,, [
-			AC_MSG_ERROR([Can't not found arg_lgpl_2 library (-lart_lgpl_2)])
-		])
-		PHP_ADD_LIBRARY_WITH_PATH(art_lgpl_2, $ART_LIB_DIR, RRD_SHARED_LIBADD)
 	], [
 		AC_MSG_CHECKING(rrdtool version)
-		AC_MSG_RESULT(1.0.x)
-		rrd_lib_postfix=""
+		AC_MSG_ERROR([Need over 1.2.x])
 	])
 
-	extra_src="rrdlib${rrd_lib_postfix}/rrd_dump.c rrdlib${rrd_lib_postfix}/rrd_restore.c"
+	#extra_src="rrdlib${rrd_lib_postfix}/rrd_dump.c rrdlib${rrd_lib_postfix}/rrd_restore.c"
 
 	PHP_EXPAND_PATH($RRD_HEADER_DIR, RRD_HEADER_DIR)
 	PHP_ADD_INCLUDE($RRD_HEADER_DIR)
