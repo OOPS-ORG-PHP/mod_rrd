@@ -3,9 +3,9 @@ Check for rrdtool presence
 --SKIPIF--
 <?php
 if ( ! extension_loaded ('rrd') ) {
-	if ( version_compare (PHP_VERSION, '5.4.0', '<') ) {
+	if ( version_compare (PHP_VERSION, '5.4.0', '>=') ) {
 		print 'skip';
-	} else if ( version_compare (PHP_VERSION, '5.3.0', '<') ) {
+	} else if ( version_compare (PHP_VERSION, '5.3.0', '>=') ) {
 		if ( ! @dl ('rrd.so') )
 			print 'skip';
 	} else {
