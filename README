@@ -1,13 +1,13 @@
 $Id$
 
-mod_rrd ´Â Joe Miller, <joeym@joeym.net> ¿¡ ÀÇÇØ ÀÛ¼ºµÈ php4-rrdtool
-¿¡¼­ ÆÄ»ýµÈ php extension ÀÌ´Ù. ÇöÀç mod_rrd ¿¡´Â php4-rrdtool ¿¡ ÀÖ
-Áö ¾ÊÀº rrd_dump ¿Í rrd_restore ÇÔ¼ö¸¦ Á¦°øÇÏ°í ÀÖÀ¸¸ç, rrd_fetch ¿ª
-½Ã ÆÐÄ¡°¡ µÇ¾î ÀÖ´Ù.
+mod_rrd ëŠ” Joe Miller, <joeym@joeym.net> ì— ì˜í•´ ìž‘ì„±ëœ php4-rrdtool
+ì—ì„œ íŒŒìƒëœ php extension ì´ë‹¤. í˜„ìž¬ mod_rrd ì—ëŠ” php4-rrdtool ì— ìžˆ
+ì§€ ì•Šì€ rrd_dump ì™€ rrd_restore í•¨ìˆ˜ë¥¼ ì œê³µí•˜ê³  ìžˆìœ¼ë©°, rrd_fetch ì—­
+ì‹œ íŒ¨ì¹˜ê°€ ë˜ì–´ ìžˆë‹¤.
 
-¶ÇÇÑ, php 4.3.x ¿Í php 5 ¸¦ Áö¿øÇÑ´Ù.
+ë˜í•œ, php 4.3.x ì™€ php 5 ë¥¼ ì§€ì›í•œë‹¤.
 
-ÀÌ ¸ðµâÀÇ »ùÇÃµéÀº tests µð·ºÅä¸®¿¡ µé¾î ÀÖÀ¸¸ç, °¢ ÇÔ¼öµéÀº ¼º°ø½Ã
-¿¡ 0À» ½ÇÆÐ½Ã¿¡´Â -1 À» ¹ÝÈ¯ÇÑ´Ù.
+ì´ ëª¨ë“ˆì˜ ìƒ˜í”Œë“¤ì€ tests ë””ë ‰í† ë¦¬ì— ë“¤ì–´ ìžˆìœ¼ë©°, ê° í•¨ìˆ˜ë“¤ì€ ì„±ê³µì‹œ
+ì— 0ì„ ì‹¤íŒ¨ì‹œì—ëŠ” -1 ì„ ë°˜í™˜í•œë‹¤.
 
-±âº»ÀûÀ¸·Î´Â rrdtool ÀÇ API »ç¿ë¹ý°ú °ÅÀÇ µ¿ÀÏÇÏ´Ù.
+ê¸°ë³¸ì ìœ¼ë¡œëŠ” rrdtool ì˜ API ì‚¬ìš©ë²•ê³¼ ê±°ì˜ ë™ì¼í•˜ë‹¤.
