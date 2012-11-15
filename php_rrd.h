@@ -56,6 +56,10 @@
 extern zend_module_entry rrd_module_entry;
 #define rrd_module_ptr &rrd_module_entry
 
+// rrd restore option
+#define RRD_RANGE_CHECK 0x01
+#define RRD_OVER_WRITE  0x02
+
 PHP_MINIT_FUNCTION(rrd);
 PHP_MSHUTDOWN_FUNCTION(rrd);
 PHP_RINIT_FUNCTION(rrd);

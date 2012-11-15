@@ -167,16 +167,22 @@ void rrd_dump(string filename)
 
 
 --------------------------------------------------------------------
-void rrd_restore(string xml_filename, string restore_database, int opt)
+void rrd_restore(string input_xml, string restore_database[, int opt])
 
         rrdtool restore 의 옵션 순서와 동일하다. xml_fliename 은
         rrd_dump 의 결과를 파일에 저장한 형태이며,  restore_database
         는 복구된 database 파일 이름이다. restore_database 에 실제파
-        일이 존재하면 에러가 발생한다. opt 를 1 로 지정을 하면
+        일이 존재하면 에러가 발생한다. opt는 다음의 상수를 사용할 수
+        있다.
 
-        rrdtool restore filename.xml filename.rrd --range-check
+        RRD_RANGE_CHECK : --range-check(-r) option
+        RRD_OVER_WRITE  : --force-overwrite(-f) option
 
-        와 동일하게 작동한다.
+        rrdtool restore filename.xml filename.rrd -r -f
+
+        와 같이 옵션을 줄 경우에는 두개의 상수를 or 연산을 하면 된다.
+
+		rrd_restore ($inxml, $restore, RRD_RANGE_CHECK|RRD_OVER_WRITE);
 
         rrd_restore 는 성공을 하면 true 를 실패를 하면 false 를 반환
         한다.
