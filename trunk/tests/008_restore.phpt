@@ -19,25 +19,29 @@ if ( ! extension_loaded ('rrd') ) {
 --INI--
 --FILE--
 <?php
-$xmlformat = "./tests/test.xml";
-$rrddb     = "/tmp/rrd-test.rrd";
-$option    = 0;
+$rrddb = './tests/sample.rrd';
+$rrdxml = '/tmp/rrd-test.xml';
+$rrdtdb = '/tmp/rrd-test.rrd';
+$option = 0;
 
-system ("rrdtool dump ./tests/test.rrd > $xmlformat");
-rrd_restore ($xmlformat, $rrddb, $option);
-//rrd_restore ($xmlformat, $rrddb);
+if ( ! file_exists ($rrdxml) )
+	system ("rrdtool dump {$rrddb} > {$rrdxml}");
+rrd_restore ($rrdxml, $rrdtdb, $option);
 
 $err = rrd_error ();
 if ( $err )
 	echo $err ."\n";
 else
-	echo "rrd_restore function is available";
-
-if ( file_exists ($xmlformat) )
-	unlink ($xmlformat);
+	echo 'rrd_restore function is available';
 
 if ( file_exists ($rrddb) )
 	unlink ($rrddb);
+
+if ( file_exists ($rrdxml) )
+	unlink ($rrdxml);
+
+if ( file_exists ($rrdtdb) )
+	unlink ($rrdtdb);
 ?>
 --EXPECT--
 rrd_restore function is available
