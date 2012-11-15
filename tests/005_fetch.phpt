@@ -22,16 +22,16 @@ if ( ! extension_loaded ('rrd') ) {
 $now = time ();
 $sta = $now - (86400 * 45);
 
-$file = "tests/test.rrd";
-$opt = array ("MAX", "--start", $sta, "--end", $now);
+$rrddb = './tests/sample.rrd';
+$opt = array ('MAX', '--start', $sta, '--end', $now);
 
-$x = rrd_fetch ($file, $opt, count ($opt));
+$x = rrd_fetch ($rrddb, $opt, count ($opt));
 
 $err = rrd_error ();
 if ( $err )
 	echo $err;
 else
-	echo "rrd_fetch function is available";
+	echo 'rrd_fetch function is available';
 
 #print_r ($x);
 

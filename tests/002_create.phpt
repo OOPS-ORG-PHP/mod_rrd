@@ -30,17 +30,18 @@ $opts = array( "--step", "300", "--start", 0,
 		"RRA:MAX:0.5:1:1000"
 );
 
-$fname = "/tmp/test.rrd";
-$ret = rrd_create ($fname, $opts, count($opts));
+$rrddb = '/tmp/test.rrd';
+$ret = rrd_create ($rrddb, $opts, count($opts));
 
 if ( $ret == 0 ) {
 	$err = rrd_error();
 	echo "Create error: $err";
-} else
-	echo "rrd_create function is available";
-
-if ( file_exists ($fname) )
-	unlink ($fname);
+} else {
+	echo 'rrd_create function is available';
+	unlink ($rrddb);
+	if ( ! file_exists ('./tests/sample.rrd') )
+		copy ('./tests/test.rrd', './tests/sample.rrd');
+}
 
 /*  else rrd_create was successful  */
 ?>

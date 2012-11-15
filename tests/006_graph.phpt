@@ -23,16 +23,19 @@ if ( ! extension_loaded ('rrd') ) {
 ## demonstration of the rrd_graph() command
 ##
 
-$opts = array ( "--start", "-4d", 
-	"DEF:in=./tests/test.rrd:RX:AVERAGE",
-	"DEF:out=./tests/test.rrd:TX:AVERAGE",
-	"LINE2:in#0000ff:Traffic Avg.",
-	"PRINT:in:AVERAGE:RX\: %1.2lf b/s",
-	"PRINT:in:AVERAGE:TX\: %1.2lf b/s"
+$rrddb = './tests/sample.rrd';
+
+$opts = array (
+	'--start', '-4d', 
+	"DEF:in={$rrddb}:RX:AVERAGE",
+	"DEF:out={$rrddb}:TX:AVERAGE",
+	'LINE2:in#0000ff:Traffic Avg.',
+	'PRINT:in:AVERAGE:RX\: %1.2lf b/s',
+	'PRINT:in:AVERAGE:TX\: %1.2lf b/s'
 );
 
 
-$tmpfile = "/tmp/rrd-test.png";
+$tmpfile = '/tmp/rrd-test.png';
 $ret = rrd_graph ($tmpfile, $opts, count($opts));
 
 ##

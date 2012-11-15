@@ -23,10 +23,11 @@ if ( ! extension_loaded ('rrd') ) {
 ## demonstration of the rrd_last() command
 ##
 
-$ret = rrd_last ("./tests/test.rrd");
+$rrddb = './tests/sample.rrd';
+$ret = rrd_last ($rrddb);
 
 if ( $ret != -1 ) {
-	echo "rrd_last function is available";
+	echo 'rrd_last function is available';
 	//printf ("Last update time:  %s\n", strftime("%m/%d/%Y %H:%M:%S"), $ret);
 } else {
 	$err_msg = rrd_error ();

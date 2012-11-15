@@ -23,13 +23,14 @@ if ( ! extension_loaded ('rrd') ) {
 ## demonstration of the rrd_update() command
 ##
 
-$ret = rrd_update ("./tests/test.rrd", "N:1297:98344");
+$rrddb = './tests/sample.rrd';
+$ret = rrd_update ($rrddb, "N:1297:98344");
 
 if ( $ret == 0 ) {
 	$err = rrd_error ();
 	echo "ERROR occurred: $err\n";
 } else
-	echo "rrd_update function is available";
+	echo 'rrd_update function is available';
 
 /* else rrd_update() was successful */
 ?>
