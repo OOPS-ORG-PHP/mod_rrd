@@ -70,7 +70,7 @@ static int le_rrd;
  *       rrdxport
  */
 const zend_function_entry rrd_functions[] = {
-	PHP_FE(confirm_rrdtool_compiled, NULL)
+	PHP_FE(confirm_rrd_compiled, NULL)
 	PHP_FE(rrd_error, NULL)
 	PHP_FE(rrd_clear_error, NULL)
 	PHP_FE(rrd_graph, NULL)
@@ -747,9 +747,9 @@ PHP_FUNCTION(rrd_first) {
 #endif /* SUPPORT_RRD12 */
 
 /* {{{ Every user-visible function in PHP should document itself in the source
- * proto string confirm_rrdtool_compiled(string arg)
+ * proto string confirm_rrd_compiled(string arg)
  * Return a string to confirm that the module is compiled in */
-PHP_FUNCTION(confirm_rrdtool_compiled)
+PHP_FUNCTION(confirm_rrd_compiled)
 {
 	char * arg = NULL;
 	int    alen, len;
@@ -765,7 +765,7 @@ PHP_FUNCTION(confirm_rrdtool_compiled)
 
 	len = sprintf (string, "Congratulations! You have successfully "
 						  "modified ext/%.78s/config.m4. Module %.78s "
-						  "is now compiled into PHP.", "rrdtool", arg);
+						  "is now compiled into PHP.", "rrd", arg);
 	RETURN_STRINGL (string, len, 1);
 }
 /* }}} */

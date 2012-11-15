@@ -3,6 +3,9 @@ dnl $Id$
 PHP_ARG_WITH(rrd, for RRDTool support,
 [  --with-rrd[=DIR]          Include RRDTool support.  DIR is the rrdtool
                           install directory.])
+if test "x$PHP_EXECUTABLE" = "xNONE"; then
+	PHP_EXECUTABLE="/usr/bin/php"
+fi
 
 if test "$PHP_RRD" != "no"; then
 	AC_DEFINE(HAVE_RRD,1,[support rrd extension])
