@@ -95,7 +95,7 @@ zend_module_entry rrd_module_entry = {
 #endif
 	"rrd",
 	rrd_functions,
-	NULL,
+	PHP_MINIT(rrd),
 	NULL,
 	NULL,
 	NULL,
@@ -110,6 +110,17 @@ zend_module_entry rrd_module_entry = {
 #ifdef COMPILE_DL_RRD
 ZEND_GET_MODULE(rrd)
 #endif
+
+/* {{{ PHP_MINIT_FUNCTION
+ */
+PHP_MINIT_FUNCTION(rrd)
+{
+	REGISTER_LONG_CONSTANT ("RRD_RANGE_CHECK", RRD_RANGE_CHECK, CONST_PERSISTENT | CONST_CS);
+	REGISTER_LONG_CONSTANT ("RRD_OVER_WRITE", RRD_OVER_WRITE, CONST_PERSISTENT | CONST_CS);
+
+	return SUCCESS;
+}
+/* }}} */
 
 /* {{{ PHP_MINFO_FUNCTION
  */
@@ -621,7 +632,7 @@ PHP_FUNCTION(rrd_restore) {
 	if ( rrd_test_error () )
 		rrd_clear_error ();
 
-	if ( rrd_parameters ("ss|b", &src, &slen, &dst, &dlen, &opt) == FAILURE )
+	if ( rrd_parameters ("ss|l", &src, &slen, &dst, &dlen, &opt) == FAILURE )
 		return;
 
 	if ( ! slen ) {
@@ -634,7 +645,14 @@ PHP_FUNCTION(rrd_restore) {
 		RETURN_FALSE;
 	}
 
-	if ( ! opt && argc == 3 )
+	if ( opt ) {
+		if ( opt == 0x03 )
+			argc++;
+		else if ( opt > 0x03 ) {
+			php_error (E_WARNING, "Invalid rrd restore options");
+			RETURN_FALSE;
+		}
+	} else if ( ! opt && argc == 3 )
 		argc--;
 
 	opts = argc + 2;
@@ -646,9 +664,20 @@ PHP_FUNCTION(rrd_restore) {
 	argv[++i] = estrdup ("restore");
 	argc = 1;
 
-	if ( opt > 0 ) {
-		argv[++i] = estrdup ("-r");
-		argc++;
+	switch ( opt ) {
+		case 0x01 :
+			argv[++i] = estrdup ("-r");
+			argc++;
+			break;
+		case 0x02 : 
+			argv[++i] = estrdup ("-f");
+			argc++;
+			break;
+		case 0x03 :
+			argv[++i] = estrdup ("-r");
+			argv[++i] = estrdup ("-f");
+			argc += 2;
+			break;
 	}
 
 	argv[++i] = estrdup (src);

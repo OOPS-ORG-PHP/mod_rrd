@@ -22,7 +22,10 @@ if ( ! extension_loaded ('rrd') ) {
 $rrddb = './tests/sample.rrd';
 $rrdxml = '/tmp/rrd-test.xml';
 $rrdtdb = '/tmp/rrd-test.rrd';
-$option = 0;
+#$option = 0;
+#$option = RRD_RANGE_CHECK;
+#$option = RRD_OVER_WRITE;
+$option = RRD_RANGE_CHECK|RRD_OVER_WRITE;
 
 if ( ! file_exists ($rrdxml) )
 	system ("rrdtool dump {$rrddb} > {$rrdxml}");
