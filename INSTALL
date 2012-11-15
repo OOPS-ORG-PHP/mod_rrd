@@ -16,11 +16,11 @@ php extension 은 3가지의 방법으로 빌드를 할 수 있습니다.
    1) 임의의 디렉토리에 mod_rrd 의 소스를 풀어 놓습니다.
 
       # cd /tmp
-      # tar xvfpj mod_rrd-1.2.2.tar.bz2
+      # tar xvfpj mod_rrd-1.2.3.tar.bz2
 
    2) phpize 를 실행하여 빌드를 하기 위한 준비를 합니다.
 
-      # cd mod_rrd-1.2.2
+      # cd mod_rrd-1.2.3
       # phpize
 
    3) ./configure 를 실행합니다.
@@ -73,8 +73,8 @@ php extension 은 3가지의 방법으로 빌드를 할 수 있습니다.
    2) ext directory 에 mod_rrd 의 소스를 풀어 놓습니다.
 
       # cd php-5.2.9/ext
-      # tar xvfpj mod_rrd-1.2.2.tar.bz2
-      # mv mod_rrd-1.2.2 rrd
+      # tar xvfpj mod_rrd-1.2.3.tar.bz2
+      # mv mod_rrd-1.2.3 rrd
 
    3) ./configure 에 --with-rrd=shared 옵션을 주고 실행 합니다. rrdtool
       의 라이브러리와 헤더파일에 대한 언급은  "1. phpize 를 이용하여 독
