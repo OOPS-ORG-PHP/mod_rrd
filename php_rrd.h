@@ -66,7 +66,7 @@ PHP_RINIT_FUNCTION(rrd);
 PHP_RSHUTDOWN_FUNCTION(rrd);
 PHP_MINFO_FUNCTION(rrd);
 
-PHP_FUNCTION(confirm_rrdtool_compiled);
+PHP_FUNCTION(confirm_rrd_compiled);
 PHP_FUNCTION(rrd_error);
 PHP_FUNCTION(rrd_clear_error);
 PHP_FUNCTION(rrd_update);
