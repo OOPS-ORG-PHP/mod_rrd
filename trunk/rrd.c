@@ -565,7 +565,7 @@ PHP_FUNCTION(rrd_dump) {
 		RETURN_FALSE;
 	}
 
-	argv = (char **) emalloc (3 * sizeof (char *));
+	argv = (char **) emalloc (5 * sizeof (char *));
 
 	if ( (temp = tempnam ("/tmp", "rre-")) == NULL ) {
 		php_error (E_WARNING, "Failed create temporary file");
@@ -573,7 +573,7 @@ PHP_FUNCTION(rrd_dump) {
 	}
 
 	n = 0;
-	argv[n] = estrdup ("dummy");
+	argv[n] = "dummy";
 	argv[++n] = estrdup ("dump");
 #ifdef SUPPORT_RRD13
 	if ( nohead )
@@ -609,7 +609,7 @@ PHP_FUNCTION(rrd_dump) {
 	RETVAL_TRUE;
 
 free_var:
-	for ( i=0; i<n; i++ )
+	for ( i=1; i<=n; i++ )
 		safe_efree (argv[i]);
 	safe_efree (argv);
 }
