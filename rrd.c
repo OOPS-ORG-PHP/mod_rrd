@@ -63,10 +63,7 @@ static int le_rrd;
 /* {{{ rrd_functions[]
  *
  * Every user visible function must have an entry in rrd_functions[].
- * todo: rrdinfo
- *       rrdlastupdate
- *       rrdresize
- *       rrdtune
+ * todo: rrdtune
  *       rrdxport
  */
 const zend_function_entry rrd_functions[] = {
@@ -83,6 +80,8 @@ const zend_function_entry rrd_functions[] = {
 #ifdef SUPPORT_RRD12
 	PHP_FE(rrd_first, NULL)
 	PHP_FE(rrd_info, NULL)
+	PHP_FE(rrd_resize, NULL)
+	PHP_FE(rrd_lastupdate, NULL)
 #endif
 	{NULL, NULL, NULL}
 };
@@ -874,6 +873,55 @@ PHP_FUNCTION(rrd_resize) {
 		safe_efree (argv[i]);
 
 	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto void rrd_lastupdate(string file)
+ */
+PHP_FUNCTION(rrd_lastupdate) {
+	char       * file   = NULL;
+	int          flen   = 0, i;
+
+	char       * argv[2];
+	rrd_info_t * data;
+
+	if ( rrd_test_error () )
+		rrd_clear_error ();
+
+	if ( rrd_parameters ("s", &file, &flen) == FAILURE )
+		return;
+    
+	if ( flen == 0 ) {
+		php_error (E_WARNING, "1st argument is empty or missing\n");
+		RETURN_FALSE;
+	}
+
+	argv[0] = "lastupdate";
+	argv[1] = file;
+
+	optind = 0;
+	opterr = 0;
+
+	{
+		time_t           last_update;
+		char          ** ds_namv;
+		char          ** last_ds;
+		unsigned long    ds_cnt, i;
+
+		if ( rrd_lastupdate (2, argv, &last_update, &ds_cnt, &ds_namv, &last_ds) != 0 )
+			RETURN_FALSE;
+
+		array_init (return_value);
+		add_assoc_long (return_value, "stamp", last_update);
+
+		for ( i=0; i<ds_cnt; i++ ) {
+			add_assoc_string (return_value, ds_namv[i], last_ds[i], 1);
+			free (last_ds[i]);
+			free (ds_namv[i]);
+		}
+		free (last_ds);
+		free (ds_namv);
+	}
 }
 /* }}} */
 #endif /* SUPPORT_RRD12 */
