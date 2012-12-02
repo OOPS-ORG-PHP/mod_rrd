@@ -746,7 +746,7 @@ PHP_FUNCTION(rrd_first) {
 }
 /* }}} */
 
-/* {{{ proto int rrd_info(string file)
+/* {{{ proto void rrd_info(string file)
  */
 PHP_FUNCTION(rrd_info) {
 	char       * file   = NULL;
@@ -803,6 +803,77 @@ PHP_FUNCTION(rrd_info) {
 	}
 
 	rrd_info_free (data);
+}
+/* }}} */
+
+/* {{{ proto bool rrd_resize (string rrdfile, array args_arr, int p_argc)
+ * Fetch info from an RRD file
+ */
+PHP_FUNCTION(rrd_resize) {
+	char           * file = NULL;
+	zval           * args;
+	int              p_argc = 0,
+					 flen   = 0;
+	
+	char           * argv[6],
+				  ** ds_namv;
+	time_t           start, end;
+	unsigned long    step, ds_cnt;
+	rrd_value_t    * data,
+				   * datap;
+	int              argc, i, x;
+
+	HashTable      * args_arr;
+	HashPosition     pos;
+	zval           * p_ds_namv,
+				   * p_data,
+				   * p_sum;
+    
+	if ( rrd_test_error () )
+		rrd_clear_error ();
+
+	if ( rrd_parameters ("szl", &file, &flen, &args, &p_argc) == FAILURE )
+		return;
+
+	if ( ! flen ) {
+		php_error (E_WARNING, "1st argumnet is empty or missing!");
+		RETURN_FALSE;
+	}
+
+	args_arr = Z_ARRVAL_P (args);
+	zend_hash_internal_pointer_reset_ex (args_arr, &pos);
+
+	argc = 6;
+
+	argv[0] = "rrdtool";
+	argv[1] = estrdup("resize");
+	argv[2] = estrdup(file);
+
+	for ( i=3; i<argc; i++) {
+		zval **dataptr;
+
+		if ( zend_hash_get_current_data_ex (args_arr, (void **) &dataptr, &pos) == FAILURE )
+			continue;
+
+		if ( Z_TYPE_PP (dataptr) != IS_STRING )
+			convert_to_string_ex (dataptr);
+
+		argv[i] = estrdup (Z_STRVAL_PP (dataptr));
+
+		if ( i < argc )
+			zend_hash_move_forward_ex (args_arr, &pos);
+	}
+
+	optind = 0;
+	opterr = 0; 
+
+	if ( rrd_resize (5, &argv[1]) == -1 )
+		RETURN_FALSE;
+
+	for ( i=1; i<argc; i++ )
+		safe_efree (argv[i]);
+
+	RETURN_TRUE;
 }
 /* }}} */
 #endif /* SUPPORT_RRD12 */

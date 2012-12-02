@@ -79,6 +79,7 @@ PHP_FUNCTION(rrd_restore);
 #ifdef SUPPORT_RRD12
 PHP_FUNCTION(rrd_first);
 PHP_FUNCTION(rrd_info);
+PHP_FUNCTION(rrd_resize);
 #endif
 
 #ifdef ZTS

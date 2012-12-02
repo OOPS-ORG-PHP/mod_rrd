@@ -6,7 +6,8 @@ PHP rrdtool Extensoin Changelog
 --------------------------------------------------------------------------------
 
 * Sun Dec  2 2012 JoungKyun.Kim <http://oops.org>
-- add rrd_info api
+- add rrd_info function
+- add rrd_resize function
 
 * Fri Nov 16 2012 JoungKyun.Kim <http://oops.org>
 - add force-overwrite option on rrd_restore
