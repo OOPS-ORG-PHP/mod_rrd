@@ -78,6 +78,7 @@ PHP_FUNCTION(rrd_dump);
 PHP_FUNCTION(rrd_restore);
 #ifdef SUPPORT_RRD12
 PHP_FUNCTION(rrd_first);
+PHP_FUNCTION(rrd_info);
 #endif
 
 #ifdef ZTS
