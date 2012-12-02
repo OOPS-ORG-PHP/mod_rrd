@@ -82,6 +82,7 @@ const zend_function_entry rrd_functions[] = {
 	PHP_FE(rrd_restore, NULL)
 #ifdef SUPPORT_RRD12
 	PHP_FE(rrd_first, NULL)
+	PHP_FE(rrd_info, NULL)
 #endif
 	{NULL, NULL, NULL}
 };
@@ -742,6 +743,66 @@ PHP_FUNCTION(rrd_first) {
 		safe_efree (argv[i]);
 	safe_efree (argv);
 	RETVAL_LONG (retval);
+}
+/* }}} */
+
+/* {{{ proto int rrd_info(string file)
+ */
+PHP_FUNCTION(rrd_info) {
+	char       * file   = NULL;
+	int          flen   = 0, i;
+
+	char       * argv[2];
+	rrd_info_t * data;
+
+	if ( rrd_test_error () )
+		rrd_clear_error ();
+
+	if ( rrd_parameters ("s", &file, &flen) == FAILURE )
+		return;
+    
+	if ( flen == 0 ) {
+		php_error (E_WARNING, "1st argument is empty or missing\n");
+		RETURN_FALSE;
+	}
+
+	argv[0] = "info";
+	argv[1] = file;
+
+	optind = 0;
+	opterr = 0;
+	data = rrd_info (2, argv);
+
+	while ( data ) {
+		php_printf ("%s = ", data->key);
+
+		switch (data->type) {
+			case RD_I_VAL:
+				if (isnan(data->value.u_val))
+					php_printf("NaN\n");
+				else
+					php_printf("%0.10e\n", data->value.u_val);
+				break;
+			case RD_I_CNT:
+				php_printf("%lu\n", data->value.u_cnt);
+				break;
+			case RD_I_INT:
+				php_printf("%d\n", data->value.u_int);
+				break;
+			case RD_I_STR:
+				php_printf("\"%s\"\n", data->value.u_str);
+				break;
+			case RD_I_BLO:
+				php_printf("BLOB_SIZE:%lu\n", data->value.u_blo.size);
+				//fwrite(data->value.u_blo.ptr, data->value.u_blo.size, 1, stdout);
+				PHPWRITE (data->value.u_blo.ptr, data->value.u_blo.size);
+				break;
+
+		}
+		data = data->next;
+	}
+
+	rrd_info_free (data);
 }
 /* }}} */
 #endif /* SUPPORT_RRD12 */

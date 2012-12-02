@@ -29,8 +29,8 @@ if ( $err )
 else
 	echo 'rrd_restore function is available';
 
-if ( file_exists ($rrddb) )
-	unlink ($rrddb);
+//if ( file_exists ($rrddb) )
+//	unlink ($rrddb);
 
 if ( file_exists ($rrdxml) )
 	unlink ($rrdxml);
