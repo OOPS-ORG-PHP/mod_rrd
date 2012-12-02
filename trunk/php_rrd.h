@@ -80,6 +80,7 @@ PHP_FUNCTION(rrd_restore);
 PHP_FUNCTION(rrd_first);
 PHP_FUNCTION(rrd_info);
 PHP_FUNCTION(rrd_resize);
+PHP_FUNCTION(rrd_lastupdate);
 #endif
 
 #ifdef ZTS
