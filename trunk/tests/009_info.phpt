@@ -24,8 +24,8 @@ if ( $err )
 else
 	echo 'rrd_info function is available';
 
-if ( file_exists ($rrddb) )
-	unlink ($rrddb);
+//if ( file_exists ($rrddb) )
+//	unlink ($rrddb);
 
 ?>
 --EXPECT--

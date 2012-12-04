@@ -5,6 +5,10 @@ PHP rrdtool Extensoin Changelog
 * 1.2.3
 --------------------------------------------------------------------------------
 
+* Wed Dec  5 2012 JoungKyun.Kim <http://oops.org>
+- add rrd_tune function
+- add rrd_xport function
+
 * Sun Dec  2 2012 JoungKyun.Kim <http://oops.org>
 - add rrd_info function
 - add rrd_resize function

@@ -76,12 +76,12 @@ PHP_FUNCTION(rrd_graph);
 PHP_FUNCTION(rrd_fetch);
 PHP_FUNCTION(rrd_dump);
 PHP_FUNCTION(rrd_restore);
-#ifdef SUPPORT_RRD12
 PHP_FUNCTION(rrd_first);
 PHP_FUNCTION(rrd_info);
 PHP_FUNCTION(rrd_resize);
 PHP_FUNCTION(rrd_lastupdate);
-#endif
+PHP_FUNCTION(rrd_tune);
+PHP_FUNCTION(rrd_xport);
 
 #ifdef ZTS
 #define RRD_G(v) TSRMG(rrd_globals_id, zend_rrd_globals *, v)
@@ -111,6 +111,21 @@ PHP_FUNCTION(rrd_lastupdate);
 #	define OB_GET_BUFFER php_ob_get_buffer
 #	define OB_END_BUFFER php_ob_end_buffer(0, 0 TSRMLS_CC)
 #endif
+
+#define XML_ENCODING     "ISO-8859-1"
+#define ROOT_TAG         "xport"
+#define META_TAG         "meta"
+#define META_START_TAG   "start"
+#define META_STEP_TAG    "step"
+#define META_END_TAG     "end"
+#define META_ROWS_TAG    "rows"
+#define META_COLS_TAG    "columns"
+#define LEGEND_TAG       "legend"
+#define LEGEND_ENTRY_TAG "entry"
+#define DATA_TAG         "data"
+#define DATA_ROW_TAG     "row"
+#define COL_TIME_TAG     "t"
+#define COL_DATA_TAG     "v"
 
 #endif  /* _MOD_RRD_H */
 
