@@ -63,8 +63,7 @@ static int le_rrd;
 /* {{{ rrd_functions[]
  *
  * Every user visible function must have an entry in rrd_functions[].
- * todo: rrdtune
- *       rrdxport
+ * todo: rrdxport
  */
 const zend_function_entry rrd_functions[] = {
 	PHP_FE(confirm_rrd_compiled, NULL)
@@ -77,12 +76,12 @@ const zend_function_entry rrd_functions[] = {
 	PHP_FE(rrd_create, NULL)
 	PHP_FE(rrd_dump, NULL)
 	PHP_FE(rrd_restore, NULL)
-#ifdef SUPPORT_RRD12
 	PHP_FE(rrd_first, NULL)
 	PHP_FE(rrd_info, NULL)
 	PHP_FE(rrd_resize, NULL)
 	PHP_FE(rrd_lastupdate, NULL)
-#endif
+	PHP_FE(rrd_tune, NULL)
+	PHP_FE(rrd_xport, NULL)
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -209,7 +208,7 @@ PHP_FUNCTION(rrd_last) {
 	int           flen = 0;
 	unsigned long retval;
 	char       ** argv;
-    
+
 	if ( rrd_test_error () )
 		rrd_clear_error ();
 
@@ -222,7 +221,7 @@ PHP_FUNCTION(rrd_last) {
 	}
 
 	argv = (char **) emalloc(3 * sizeof(char *));
-    
+
 	argv[0] = "dummy";
 	argv[1] = estrdup ("last");
 	argv[2] = flen ? estrdup (file) : NULL;
@@ -319,16 +318,14 @@ PHP_FUNCTION(rrd_graph) {
 	int            i, xsize, ysize, argc;
 	char        ** argv;
 	char        ** calcpr;
-#ifdef SUPPORT_RRD12
 	double         ymin, ymax;
-#endif
-    
+
 	if ( rrd_test_error () )
 		rrd_clear_error ();
 
 	if ( rrd_parameters ("szl", &file, &flen, &args, &p_argc) == FAILURE )
 		return;
-    
+
 	if ( ! flen ) {
 		php_error (E_WARNING, "1st argumnet is empty or missing!");
 		RETURN_FALSE;
@@ -362,11 +359,7 @@ PHP_FUNCTION(rrd_graph) {
 	optind = 0;
 	opterr = 0; 
 
-#ifdef SUPPORT_RRD12
 	if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize, NULL, &ymin, &ymax) == -1 )
-#else
-	if ( rrd_graph(argc-1, &argv[1], &calcpr, &xsize, &ysize) == -1 )
-#endif
 		RETURN_FALSE;
 
 	array_init (return_value);
@@ -419,7 +412,7 @@ PHP_FUNCTION(rrd_fetch) {
 	zval           * p_ds_namv,
 				   * p_data,
 				   * p_sum;
-    
+
 	if ( rrd_test_error () )
 		rrd_clear_error ();
 
@@ -537,7 +530,7 @@ go_free:
 }
 /* }}} */
 
-/* {{{ proto int rrd_dump (string file) 
+/* {{{ proto bool rrd_dump (string file) 
  * Dump an RRD file with XML format
  */
 PHP_FUNCTION(rrd_dump) {
@@ -615,7 +608,7 @@ free_var:
 }
 /* }}} */
 
-/* {{{ proto int rrd_restore (string src, string dst, int opts) 
+/* {{{ proto bool rrd_restore (string src, string dst, int opts) 
  * Restore an RRD file from XML format
  */
 PHP_FUNCTION(rrd_restore) {
@@ -698,7 +691,6 @@ PHP_FUNCTION(rrd_restore) {
 }
 /* }}} */
 
-#ifdef SUPPORT_RRD12
 /* {{{ proto int rrd_first(string file, string index)
  * Return the date of the first data sample in an RRA within an RRD
  */
@@ -718,7 +710,7 @@ PHP_FUNCTION(rrd_first) {
 
 	if ( rrd_parameters ("s|s", &file, &flen, &index, &ilen) == FAILURE )
 		return;
-    
+
 	if ( flen == 0 ) {
 		php_error (E_WARNING, "1st argument is empty or missing\n");
 		RETURN_FALSE;
@@ -745,7 +737,7 @@ PHP_FUNCTION(rrd_first) {
 }
 /* }}} */
 
-/* {{{ proto void rrd_info(string file)
+/* {{{ proto bool rrd_info(string file)
  */
 PHP_FUNCTION(rrd_info) {
 	char       * file   = NULL;
@@ -759,7 +751,7 @@ PHP_FUNCTION(rrd_info) {
 
 	if ( rrd_parameters ("s", &file, &flen) == FAILURE )
 		return;
-    
+
 	if ( flen == 0 ) {
 		php_error (E_WARNING, "1st argument is empty or missing\n");
 		RETURN_FALSE;
@@ -802,6 +794,7 @@ PHP_FUNCTION(rrd_info) {
 	}
 
 	rrd_info_free (data);
+	RETURN_TRUE;
 }
 /* }}} */
 
@@ -827,7 +820,7 @@ PHP_FUNCTION(rrd_resize) {
 	zval           * p_ds_namv,
 				   * p_data,
 				   * p_sum;
-    
+
 	if ( rrd_test_error () )
 		rrd_clear_error ();
 
@@ -876,7 +869,7 @@ PHP_FUNCTION(rrd_resize) {
 }
 /* }}} */
 
-/* {{{ proto void rrd_lastupdate(string file)
+/* {{{ proto bool rrd_lastupdate(string file)
  */
 PHP_FUNCTION(rrd_lastupdate) {
 	char       * file   = NULL;
@@ -890,7 +883,7 @@ PHP_FUNCTION(rrd_lastupdate) {
 
 	if ( rrd_parameters ("s", &file, &flen) == FAILURE )
 		return;
-    
+
 	if ( flen == 0 ) {
 		php_error (E_WARNING, "1st argument is empty or missing\n");
 		RETURN_FALSE;
@@ -922,9 +915,200 @@ PHP_FUNCTION(rrd_lastupdate) {
 		free (last_ds);
 		free (ds_namv);
 	}
+
+	RETURN_TRUE;
 }
 /* }}} */
-#endif /* SUPPORT_RRD12 */
+
+/* {{{ proto bool rrd_tune (string rrdfile, array args_arr, int p_argc)
+ */
+PHP_FUNCTION(rrd_tune) {
+	char           * file = NULL;
+	zval           * args;
+	int              p_argc = 0,
+					 flen   = 0;
+	
+	char          ** argv;
+	rrd_value_t    * data,
+				   * datap;
+	int              argc, i;
+
+	HashTable      * args_arr;
+	HashPosition     pos;
+
+	if ( rrd_test_error () )
+		rrd_clear_error ();
+
+	if ( rrd_parameters ("szl", &file, &flen, &args, &p_argc) == FAILURE )
+		return;
+
+	if ( ! flen ) {
+		php_error (E_WARNING, "1st argumnet is empty or missing!");
+		RETURN_FALSE;
+	}
+
+	args_arr = Z_ARRVAL_P (args);
+	zend_hash_internal_pointer_reset_ex (args_arr, &pos);
+
+	argc = p_argc + 3;
+
+	argv = (char **) emalloc (sizeof (char *) * argc);
+
+	argv[0] = "rrdtool";
+	argv[1] = estrdup("resize");
+	argv[2] = estrdup(file);
+
+	for ( i=3; i<argc; i++) {
+		zval **dataptr;
+
+		if ( zend_hash_get_current_data_ex (args_arr, (void **) &dataptr, &pos) == FAILURE )
+			continue;
+
+		if ( Z_TYPE_PP (dataptr) != IS_STRING )
+			convert_to_string_ex (dataptr);
+
+		argv[i] = estrdup (Z_STRVAL_PP (dataptr));
+
+		if ( i < argc )
+			zend_hash_move_forward_ex (args_arr, &pos);
+	}
+
+	optind = 0;
+	opterr = 0; 
+
+	if ( rrd_tune (argc - 1, &argv[1]) == -1 )
+		RETURN_FALSE;
+
+	for ( i=1; i<argc; i++ )
+		safe_efree (argv[i]);
+	safe_efree (argv);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
+/* {{{ proto bool rrd_xport (string rrdfile, array args_arr, int p_argc)
+ */
+PHP_FUNCTION(rrd_xport) {
+	zval           * args;
+	int              p_argc = 0;
+	
+	char          ** argv;
+	rrd_value_t    * data,
+				   * datap;
+	int              argc, i,
+				     enumds = 0;
+
+	HashTable      * args_arr;
+	HashPosition     pos;
+
+	if ( rrd_test_error () )
+		rrd_clear_error ();
+
+	if ( rrd_parameters ("zl", &args, &p_argc) == FAILURE )
+		return;
+
+	args_arr = Z_ARRVAL_P (args);
+	zend_hash_internal_pointer_reset_ex (args_arr, &pos);
+
+	argc = p_argc + 2;
+
+	argv = (char **) emalloc (sizeof (char *) * argc);
+
+	argv[0] = "rrdtool";
+	argv[1] = estrdup("resize");
+
+	for ( i=2; i<argc; i++) {
+		zval **dataptr;
+
+		if ( zend_hash_get_current_data_ex (args_arr, (void **) &dataptr, &pos) == FAILURE )
+			continue;
+
+		if ( Z_TYPE_PP (dataptr) != IS_STRING )
+			convert_to_string_ex (dataptr);
+
+		argv[i] = estrdup (Z_STRVAL_PP (dataptr));
+
+		if ( strcmp ("--enumds", argv[i]) == 0 )
+			enumds = 1;
+
+		if ( i < argc )
+			zend_hash_move_forward_ex (args_arr, &pos);
+	}
+
+	optind = 0;
+	opterr = 0; 
+
+	{
+		int                  xxsize;
+		unsigned long int    j = 0;
+		time_t               start, end, ti;
+		unsigned long        step, col_cnt, row_cnt;
+		rrd_value_t       *  data, * ptr;
+		char              ** legend_v;
+		size_t               vtag_s = strlen (COL_DATA_TAG) + 10;
+		char               * vtag = malloc (vtag_s);
+
+
+		if ( rrd_xport (argc - 1, &argv[1], &xxsize, &start, &end, &step, &col_cnt, &legend_v, &data) == -1 )
+			RETURN_FALSE;
+
+		row_cnt = (end - start) / step;
+		ptr = data;
+		php_printf ("<?xml version=\"1.0\" encoding=\"%s\"?>\n\n", XML_ENCODING);
+		php_printf ("<%s>\n", ROOT_TAG);
+		php_printf ("  <%s>\n", META_TAG);
+		php_printf ("    <%s>%lu</%s>\n", META_START_TAG,
+				(unsigned long) start + step, META_START_TAG);
+		php_printf ("    <%s>%lu</%s>\n", META_STEP_TAG, step, META_STEP_TAG);
+		php_printf ("    <%s>%lu</%s>\n", META_END_TAG, (unsigned long) end, META_END_TAG);
+		php_printf ("    <%s>%lu</%s>\n", META_ROWS_TAG, row_cnt, META_ROWS_TAG);
+		php_printf ("    <%s>%lu</%s>\n", META_COLS_TAG, col_cnt, META_COLS_TAG);
+		php_printf ("    <%s>\n", LEGEND_TAG);
+		for ( j=0; j<col_cnt; j++ ) {
+			char * entry = NULL;
+
+			entry = legend_v[j];
+			php_printf ("      <%s>%s</%s>\n", LEGEND_ENTRY_TAG, entry, LEGEND_ENTRY_TAG);
+			free (entry);
+		}
+		free (legend_v);
+		php_printf ("    </%s>\n", LEGEND_TAG);
+		php_printf ("  </%s>\n", META_TAG);
+		php_printf ("  <%s>\n", DATA_TAG);
+		for ( ti=start + step; ti<=end; ti += step ) {
+			php_printf ("    <%s>", DATA_ROW_TAG);
+			php_printf ("<%s>%lu</%s>", COL_TIME_TAG, ti, COL_TIME_TAG);
+			for ( j=0; j<col_cnt; j++ ) {
+				rrd_value_t newval = DNAN;
+
+				if ( enumds == 1 )
+					snprintf (vtag, vtag_s, "%s%lu", COL_DATA_TAG, j);
+				else
+					snprintf (vtag, vtag_s, "%s", COL_DATA_TAG);
+				newval = * ptr;
+				if ( isnan (newval) ) {
+					php_printf ("<%s>NaN</%s>", vtag, vtag);
+				} else {
+					php_printf ("<%s>%0.10e</%s>", vtag, newval, vtag);
+				};
+				ptr++;
+			}
+			php_printf ("</%s>\n", DATA_ROW_TAG);
+		}
+		free (data);
+		php_printf ("  </%s>\n", DATA_TAG);
+		php_printf ("</%s>\n", ROOT_TAG);
+		free (vtag);
+	}
+
+	for ( i=1; i<argc; i++ )
+		safe_efree (argv[i]);
+	safe_efree (argv);
+
+	RETURN_TRUE;
+}
+/* }}} */
 
 /* {{{ Every user-visible function in PHP should document itself in the source
  * proto string confirm_rrd_compiled(string arg)
