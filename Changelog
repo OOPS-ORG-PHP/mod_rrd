@@ -18,7 +18,7 @@ PHP rrdtool Extensoin Changelog
 - add force-overwrite option on rrd_restore
 
 * Thu Nov 15 2012 JoungKyun.Kim <http://oops.org>
-- don't use bundle rrd_dump, rrd_restre api any more
+- don't use bundle rrd_dump, rrd_restore api any more
 - don't support rrdtool 1.0.x
 
 * Tue Nov 13 2012 JoungKyun.Kim <http://oops.org>
