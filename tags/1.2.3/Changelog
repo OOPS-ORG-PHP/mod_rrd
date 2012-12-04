@@ -1,0 +1,81 @@
+$Id$
+
+PHP rrdtool Extensoin Changelog
+
+* 1.2.3
+--------------------------------------------------------------------------------
+
+* Wed Dec  5 2012 JoungKyun.Kim <http://oops.org>
+- add rrd_tune function
+- add rrd_xport function
+
+* Sun Dec  2 2012 JoungKyun.Kim <http://oops.org>
+- add rrd_info function
+- add rrd_resize function
+- add rrd_lastupdate function
+
+* Fri Nov 16 2012 JoungKyun.Kim <http://oops.org>
+- add force-overwrite option on rrd_restore
+
+* Thu Nov 15 2012 JoungKyun.Kim <http://oops.org>
+- don't use bundle rrd_dump, rrd_restore api any more
+- don't support rrdtool 1.0.x
+
+* Tue Nov 13 2012 JoungKyun.Kim <http://oops.org>
+- fixed deprecated zend_get_parameters_ex
+
+
+* 1.2.2
+--------------------------------------------------------------------------------
+
+* Thu Mar 12 2009 JoungKyun.Kim <http://oops.org>
+- fixed lib_arg_lgpl link search
+- update bundle rrdlib12 to 1.2.30
+
+* Tue Jul 15 2008 JoungKyun.Kim <http://oops.org>
+- support 64bit library check
+
+
+* 1.2.1
+--------------------------------------------------------------------------------
+
+* Fri Sep 28 2007 JoungKyun.Kim <http://oops.org>
+- fixed undefine symbol emallocf
+- check libart_lgpl_2 library when linked rrdtool 1.2 on config.m4
+- fixed efree symbol error
+
+
+* 1.2.0
+--------------------------------------------------------------------------------
+
+* Tue Aug  7 2007 JoungKyun.Kim <http://oops.org>
+- add rrd_first if link with rrdtool 1.2
+
+* Mon Aug  6 2007 JoungKyun.Kim <http://oops.org>
+- add rrdtool 1.2 library
+
+
+* 1.0.1
+--------------------------------------------------------------------------------
+
+* Sun Apr 22 2007 JoungKyun.Kim <http://oops.org>
+- fixed wrong library name
+
+
+* 1.0.0
+--------------------------------------------------------------------------------
+
+* Wed Jul 28 2004 JoungKyun Kim <http://oops.org>
+- rewrite base on php4-rrdtool-1.04
+- added korean document
+
+* Tue Jul 13 2004 JoungKyun Kim <http://oops.org>
+- added rrd_dump function
+- added rrd_restore function
+
+* Fri Jul  9 2004 JoungKyun Kim <http://oops.org>
+- added summary array value on rrd_fetch
+
+* Tue Jul  6 2004 JoungKyun Kim <http://oops.org>
+- redesign mod_rrdtool 1.03 from php4-rrdtool-1.03
+
