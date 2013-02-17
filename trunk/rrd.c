@@ -132,7 +132,7 @@ PHP_MINFO_FUNCTION(rrd)
 }
 /* }}} */
 
-/* {{{ proto string rrd_error(void)
+/* {{{ proto (string) rrd_error (void)
  * Get the error message set by the last rrd tool function call
  */
 PHP_FUNCTION(rrd_error) {
@@ -147,7 +147,7 @@ PHP_FUNCTION(rrd_error) {
 }
 /* }}} */
 
-/* {{{ proto void rrd_clear_error(void)
+/* {{{ proto (void) rrd_clear_error (void)
  * Clear the error set by the last rrd tool function call
  */
 PHP_FUNCTION(rrd_clear_error) {
@@ -156,7 +156,7 @@ PHP_FUNCTION(rrd_clear_error) {
 }
 /* }}} */
 
-/* {{{ proto int rrd_update(string file, string opt)
+/* {{{ proto (bool) rrd_update (string file, string opt)
  * Update an RRD file with values specified
  */
 PHP_FUNCTION(rrd_update) {
@@ -200,7 +200,7 @@ PHP_FUNCTION(rrd_update) {
 }
 /* }}} */
 
-/* {{{ proto int rrd_last(string file)
+/* {{{ proto (int|false) rrd_last (string file)
  * Gets last update time of an RRD file
  */
 PHP_FUNCTION(rrd_last) {
@@ -238,7 +238,7 @@ PHP_FUNCTION(rrd_last) {
 }
 /* }}} */
 
-/* {{{ proto int rrd_create(string file, array args_arr, int argc)
+/* {{{ proto (bool) rrd_create (string file, array args_arr, int argc)
  * Create an RRD file with the options passed (passed via array)
  */ 
 PHP_FUNCTION(rrd_create) {
@@ -303,7 +303,7 @@ PHP_FUNCTION(rrd_create) {
 }
 /* }}} */
 
-/* {{{ proto mixed rrd_graph(string file, array args_arr, int argc)
+/* {{{ proto (array|false) rrd_graph (string file, array args_arr, int argc)
  * Creates a graph based on options passed via an array
  */
 PHP_FUNCTION(rrd_graph) {
@@ -390,7 +390,7 @@ PHP_FUNCTION(rrd_graph) {
 }
 /* }}} */
 
-/* {{{ proto mixed rrd_fetch(string file, array args_arr, int p_argc)
+/* {{{ proto (array|false) rrd_fetch (string file, array args_arr, int p_argc)
  * Fetch info from an RRD file
  */
 PHP_FUNCTION(rrd_fetch) {
@@ -530,7 +530,7 @@ go_free:
 }
 /* }}} */
 
-/* {{{ proto bool rrd_dump (string file) 
+/* {{{ proto (bool) rrd_dump (string file) 
  * Dump an RRD file with XML format
  */
 PHP_FUNCTION(rrd_dump) {
@@ -608,7 +608,7 @@ free_var:
 }
 /* }}} */
 
-/* {{{ proto bool rrd_restore (string src, string dst, int opts) 
+/* {{{ proto (bool) rrd_restore (string src, string dst, int opts) 
  * Restore an RRD file from XML format
  */
 PHP_FUNCTION(rrd_restore) {
@@ -691,7 +691,7 @@ PHP_FUNCTION(rrd_restore) {
 }
 /* }}} */
 
-/* {{{ proto int rrd_first(string file, string index)
+/* {{{ proto (int|false) rrd_first (string file, string index)
  * Return the date of the first data sample in an RRA within an RRD
  */
 PHP_FUNCTION(rrd_first) {
@@ -737,7 +737,7 @@ PHP_FUNCTION(rrd_first) {
 }
 /* }}} */
 
-/* {{{ proto bool rrd_info(string file)
+/* {{{ proto (bool) rrd_info (string file)
  */
 PHP_FUNCTION(rrd_info) {
 	char       * file   = NULL;
@@ -798,7 +798,7 @@ PHP_FUNCTION(rrd_info) {
 }
 /* }}} */
 
-/* {{{ proto bool rrd_resize (string rrdfile, array args_arr, int p_argc)
+/* {{{ proto (bool) rrd_resize (string rrdfile, array args_arr, int p_argc)
  * Fetch info from an RRD file
  */
 PHP_FUNCTION(rrd_resize) {
@@ -869,7 +869,7 @@ PHP_FUNCTION(rrd_resize) {
 }
 /* }}} */
 
-/* {{{ proto bool rrd_lastupdate(string file)
+/* {{{ proto (bool) rrd_lastupdate (string file)
  */
 PHP_FUNCTION(rrd_lastupdate) {
 	char       * file   = NULL;
@@ -920,7 +920,7 @@ PHP_FUNCTION(rrd_lastupdate) {
 }
 /* }}} */
 
-/* {{{ proto bool rrd_tune (string rrdfile, array args_arr, int p_argc)
+/* {{{ proto (bool) rrd_tune (string rrdfile, array args_arr, int p_argc)
  */
 PHP_FUNCTION(rrd_tune) {
 	char           * file = NULL;
@@ -987,7 +987,7 @@ PHP_FUNCTION(rrd_tune) {
 }
 /* }}} */
 
-/* {{{ proto bool rrd_xport (string rrdfile, array args_arr, int p_argc)
+/* {{{ proto (bool) rrd_xport (string rrdfile, array args_arr, int p_argc)
  */
 PHP_FUNCTION(rrd_xport) {
 	zval           * args;
